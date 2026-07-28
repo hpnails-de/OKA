@@ -13,8 +13,25 @@ from doc_mach_bus import xuong_song_trung_uong
 from ty_tang_parser import ty_tang_trung_uong
 
 
+# Đếm token THẬT nếu máy có tiktoken; không có thì lùi về ước lượng thô.
+# Đã đo trên dự án thật: ước lượng len//4 lệch khoảng 13-15% so với số thật,
+# NHƯNG tỷ lệ tiết kiệm gần như không đổi (96.4% ước tính vs 96.3% thật) vì
+# sai số ở tử và mẫu triệt tiêu nhau. Vẫn nên dùng số thật khi có, để con số
+# tuyệt đối in ra không sai lệch.
+try:
+    import tiktoken
+    _BO_MA_HOA = tiktoken.get_encoding("cl100k_base")
+except Exception:
+    _BO_MA_HOA = None
+
+
 def uoc_luong_token(van_ban):
-    """Ước lượng thô: ~4 ký tự một token. Đủ để thấy mình tiết kiệm bao nhiêu."""
+    """Số token. Chính xác nếu có tiktoken, không thì ~4 ký tự một token."""
+    if _BO_MA_HOA is not None:
+        try:
+            return max(1, len(_BO_MA_HOA.encode(van_ban)))
+        except Exception:
+            pass
     return max(1, len(van_ban) // 4)
 
 
@@ -140,15 +157,33 @@ class TamTang:
         if tong_dong <= 0:
             return ""
 
-        # Ước lượng: một dòng code trung bình ~40 ký tự ~10 token
-        token_tho = tong_dong * 10
+        # ĐỌC THẲNG file thật để đếm cho đúng. Bản cũ đoán "mỗi dòng ~10
+        # token" - đo lại bằng tiktoken trên dự án thật thì con số đoán này
+        # thấp hơn thực tế ~17% (149.150 đoán vs 179.145 thật), tức là đang
+        # tự khai KHIÊM TỐN hơn thực lực. Vẫn nên sửa: một công cụ đo mức nén
+        # mà chính phép đo lại ước lượng thì mất tin cậy.
+        token_tho = 0
+        doc_duoc_het = True
+        for khoa in files:
+            duong_dan = os.path.join(benh_nhan, khoa)
+            try:
+                with open(duong_dan, "r", encoding="utf-8", errors="replace") as f:
+                    token_tho += uoc_luong_token(f.read())
+            except OSError:
+                doc_duoc_het = False
+                break
+
+        if not doc_duoc_het or token_tho <= 0:
+            token_tho = tong_dong * 10   # đường lui khi file đã bị xóa/đổi chỗ
+
         token_kinh = uoc_luong_token(chan_kinh)
         ti_le = 100 - (token_kinh * 100 // token_tho)
 
+        do_chinh_xac = "đo thật" if _BO_MA_HOA is not None else "ước lượng"
         pham_vi = f"{len(files)} file" + (f" khớp '{loc}'" if loc else "")
         return (f"📊 [{pham_vi}]  Ném cả source: ~{token_tho:,} token  |  "
                 f"Chân Kinh: ~{token_kinh:,} token  |  "
-                f"Tiết kiệm ~{ti_le}%")
+                f"Tiết kiệm ~{ti_le}%  ({do_chinh_xac})")
 
 
 # Khởi tạo thực thể Tâm Tạng duy nhất

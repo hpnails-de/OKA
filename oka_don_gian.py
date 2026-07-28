@@ -12,6 +12,7 @@
 # customtkinter, không cần pip install gì cả.
 
 import os
+import re
 import sys
 import io
 import contextlib
@@ -85,45 +86,219 @@ def kham_benh_va_xuat_file(duong_dan_du_an, bao_trang_thai=lambda msg: None):
     return duong_dan_bao_cao
 
 
+def rut_so_lieu(duong_dan_bao_cao):
+    """Moi ra vài con số đáng chú ý từ báo cáo, để hiện ngay trên giao diện
+    thay vì bắt người dùng mở file mới biết kết quả."""
+    so_lieu = {"so_file": "?", "tiet_kiem": "?", "token_goc": "?",
+               "token_moi": "?", "so_nhan_dinh": 0, "canh_bao": []}
+    try:
+        with open(duong_dan_bao_cao, "r", encoding="utf-8") as f:
+            noi_dung = f.read()
+    except OSError:
+        return so_lieu
+
+    m = re.search(r"nhai xong (\d+) file", noi_dung)
+    if m:
+        so_lieu["so_file"] = m.group(1)
+
+    m = re.search(
+        r"Ném cả source: ~([\d,]+) token\s*\|\s*Chân Kinh: ~([\d,]+) token\s*\|\s*Tiết kiệm ~(\d+)%",
+        noi_dung,
+    )
+    if m:
+        so_lieu["token_goc"] = m.group(1)
+        so_lieu["token_moi"] = m.group(2)
+        so_lieu["tiet_kiem"] = m.group(3) + "%"
+
+    m = re.search(r"THƯỢNG TRÍ: Đã tổng hợp (\d+) nhận định", noi_dung)
+    if m:
+        so_lieu["so_nhan_dinh"] = int(m.group(1))
+
+    # Lấy các dòng nhận định của Thượng Trí để hiện tóm tắt
+    khoi = re.search(
+        r"TỔNG HỢP NHẬN ĐỊNH.*?\n(.*?)\n-{20,}", noi_dung, re.DOTALL
+    )
+    if khoi:
+        for dong in khoi.group(1).splitlines():
+            dong = dong.strip()
+            if dong and not dong.startswith("🧠"):
+                so_lieu["canh_bao"].append(dong)
+
+    return so_lieu
+
+
+# --- Bảng màu: tối, dịu mắt, tông xanh lá của "thảo dược" ---
+NEN = "#12151a"          # nền chính
+NEN_THE = "#1b2027"      # nền thẻ
+VIEN = "#2a323d"         # viền thẻ
+CHU = "#e6e9ef"          # chữ chính
+CHU_MO = "#8b95a5"       # chữ phụ
+XANH = "#4ade80"         # nhấn (xanh lá)
+XANH_DAM = "#22c55e"
+VANG = "#fbbf24"         # cảnh báo
+DO = "#f87171"           # lỗi
+
+
 class CuaSoOKA(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("🌿 OKA - Thầy Thuốc Cho Code")
-        self.geometry("540x240")
-        self.resizable(False, False)
+        self.title("OKA — Thầy Thuốc Cho Code")
+        self.geometry("720x560")
+        self.minsize(660, 520)
+        self.configure(bg=NEN)
 
         self.hang_doi = queue.Queue()
         self.dang_chay = False
+        self.duong_dan_bao_cao_vua_xong = None
+        self.duong_dan_da_chon = None
 
-        tk.Label(self, text="🌿 OKA_System", font=("Segoe UI", 18, "bold")).pack(pady=(18, 4))
+        self._dung_thanh_tieu_de()
+        self._dung_khu_chon()
+        self._dung_khu_ket_qua()
+        self._dung_chan_trang()
+
+    # ---------------- Dựng giao diện ----------------
+
+    def _the(self, cha, **kw):
+        """Một 'thẻ' - khối nền sáng hơn, có viền, cho gọn mắt."""
+        return tk.Frame(cha, bg=NEN_THE, highlightbackground=VIEN,
+                        highlightthickness=1, **kw)
+
+    def _dung_thanh_tieu_de(self):
+        dau = tk.Frame(self, bg=NEN)
+        dau.pack(fill="x", padx=24, pady=(22, 6))
+        tk.Label(dau, text="🌿  OKA", font=("Segoe UI", 22, "bold"),
+                 bg=NEN, fg=XANH).pack(side="left")
+        tk.Label(dau, text="Thầy Thuốc Cho Code", font=("Segoe UI", 11),
+                 bg=NEN, fg=CHU_MO).pack(side="left", padx=(12, 0), pady=(10, 0))
+
         tk.Label(
-            self, text="Chọn thư mục dự án cần khám bệnh",
-            font=("Segoe UI", 11),
-        ).pack(pady=(0, 12))
+            self,
+            text="Khám một dự án, xuất ra một file duy nhất để dán cho AI — "
+                 "giúp AI hiểu cấu trúc mà tốn rất ít token.",
+            font=("Segoe UI", 9), bg=NEN, fg=CHU_MO,
+            wraplength=660, justify="left",
+        ).pack(fill="x", padx=24, pady=(0, 14))
+
+    def _dung_khu_chon(self):
+        the = self._the(self)
+        the.pack(fill="x", padx=24)
+
+        trong = tk.Frame(the, bg=NEN_THE)
+        trong.pack(fill="x", padx=16, pady=14)
 
         self.nhan_duong_dan = tk.Label(
-            self, text="(chưa chọn thư mục nào)",
-            font=("Segoe UI", 9), fg="#555555", wraplength=500,
+            trong, text="Chưa chọn thư mục nào",
+            font=("Segoe UI", 10), bg=NEN_THE, fg=CHU_MO,
+            anchor="w", wraplength=420, justify="left",
         )
-        self.nhan_duong_dan.pack(pady=(0, 10))
+        self.nhan_duong_dan.pack(side="left", fill="x", expand=True)
 
         self.nut_chon = tk.Button(
-            self, text="📂 Chọn thư mục dự án...", font=("Segoe UI", 11),
-            command=self.chon_thu_muc, width=32, height=1,
+            trong, text="📂  Chọn thư mục…", font=("Segoe UI", 10, "bold"),
+            bg=XANH_DAM, fg="#0b1220", activebackground=XANH,
+            activeforeground="#0b1220", relief="flat", cursor="hand2",
+            padx=18, pady=8, command=self.chon_thu_muc, borderwidth=0,
         )
-        self.nut_chon.pack(pady=4)
+        self.nut_chon.pack(side="right")
+
+        # Thanh tiến trình tự vẽ (Canvas) - ttk.Progressbar bám theme hệ điều
+        # hành nên trên nền tối thường lệch màu, tự vẽ thì chắc ăn hơn.
+        self.thanh_tien_trinh = tk.Canvas(
+            the, height=4, bg=VIEN, highlightthickness=0
+        )
+        self.thanh_tien_trinh.pack(fill="x")
+        self._ve_tien_trinh(0)
 
         self.nhan_trang_thai = tk.Label(
-            self, text="", font=("Segoe UI", 9), fg="#0a7a2f", wraplength=500,
+            the, text="", font=("Segoe UI", 9), bg=NEN_THE, fg=CHU_MO,
+            anchor="w", wraplength=640, justify="left",
         )
-        self.nhan_trang_thai.pack(pady=(14, 0))
+        self.nhan_trang_thai.pack(fill="x", padx=16, pady=(8, 12))
 
-        self.duong_dan_bao_cao_vua_xong = None
-        self.nut_mo_thu_muc = tk.Button(
-            self, text="📁 Mở thư mục chứa báo cáo", font=("Segoe UI", 10),
-            command=self.mo_thu_muc_bao_cao, state="disabled",
+    def _dung_khu_ket_qua(self):
+        self.khu_ket_qua = self._the(self)
+        self.khu_ket_qua.pack(fill="both", expand=True, padx=24, pady=14)
+
+        # Hàng các ô số liệu
+        self.hang_so = tk.Frame(self.khu_ket_qua, bg=NEN_THE)
+        self.hang_so.pack(fill="x", padx=16, pady=(14, 6))
+        self.o_so = {}
+        for khoa, nhan in (("so_file", "File đã đọc"),
+                           ("token_goc", "Token nếu dán cả source"),
+                           ("token_moi", "Token của Chân Kinh"),
+                           ("tiet_kiem", "Tiết kiệm")):
+            o = tk.Frame(self.hang_so, bg=NEN_THE)
+            o.pack(side="left", expand=True, fill="x")
+            gia_tri = tk.Label(o, text="—", font=("Segoe UI", 17, "bold"),
+                               bg=NEN_THE, fg=CHU)
+            gia_tri.pack()
+            tk.Label(o, text=nhan, font=("Segoe UI", 8), bg=NEN_THE,
+                     fg=CHU_MO).pack()
+            self.o_so[khoa] = gia_tri
+
+        tk.Frame(self.khu_ket_qua, bg=VIEN, height=1).pack(
+            fill="x", padx=16, pady=(10, 0))
+
+        self.nhan_canh_bao = tk.Label(
+            self.khu_ket_qua, text="Kết quả chẩn đoán sẽ hiện ở đây.",
+            font=("Segoe UI", 9, "bold"), bg=NEN_THE, fg=CHU_MO, anchor="w",
         )
-        self.nut_mo_thu_muc.pack(pady=(8, 0))
+        self.nhan_canh_bao.pack(fill="x", padx=16, pady=(10, 4))
+
+        khung_van_ban = tk.Frame(self.khu_ket_qua, bg=NEN_THE)
+        khung_van_ban.pack(fill="both", expand=True, padx=16, pady=(0, 14))
+
+        thanh_cuon = tk.Scrollbar(khung_van_ban)
+        thanh_cuon.pack(side="right", fill="y")
+        self.o_canh_bao = tk.Text(
+            khung_van_ban, height=7, font=("Consolas", 9), bg=NEN, fg=CHU,
+            relief="flat", wrap="word", yscrollcommand=thanh_cuon.set,
+            insertbackground=CHU, padx=10, pady=8,
+        )
+        self.o_canh_bao.pack(side="left", fill="both", expand=True)
+        thanh_cuon.config(command=self.o_canh_bao.yview)
+        self.o_canh_bao.config(state="disabled")
+
+    def _dung_chan_trang(self):
+        chan = tk.Frame(self, bg=NEN)
+        chan.pack(fill="x", padx=24, pady=(0, 20))
+
+        self.nut_mo_file = tk.Button(
+            chan, text="📄  Mở file báo cáo", font=("Segoe UI", 10),
+            bg=NEN_THE, fg=CHU_MO, activebackground=VIEN, relief="flat",
+            cursor="hand2", padx=14, pady=7, borderwidth=0,
+            state="disabled", command=self.mo_file_bao_cao,
+        )
+        self.nut_mo_file.pack(side="left")
+
+        self.nut_mo_thu_muc = tk.Button(
+            chan, text="📁  Mở thư mục", font=("Segoe UI", 10),
+            bg=NEN_THE, fg=CHU_MO, activebackground=VIEN, relief="flat",
+            cursor="hand2", padx=14, pady=7, borderwidth=0,
+            state="disabled", command=self.mo_thu_muc_bao_cao,
+        )
+        self.nut_mo_thu_muc.pack(side="left", padx=(10, 0))
+
+        self.nut_chep = tk.Button(
+            chan, text="📋  Chép nội dung để dán cho AI",
+            font=("Segoe UI", 10, "bold"),
+            bg=NEN_THE, fg=XANH, activebackground=VIEN, relief="flat",
+            cursor="hand2", padx=14, pady=7, borderwidth=0,
+            state="disabled", command=self.chep_bao_cao,
+        )
+        self.nut_chep.pack(side="right")
+
+    def _ve_tien_trinh(self, ty_le):
+        """ty_le: 0.0 → 1.0"""
+        self.thanh_tien_trinh.delete("all")
+        self.update_idletasks()
+        rong = self.thanh_tien_trinh.winfo_width() or 660
+        if ty_le > 0:
+            self.thanh_tien_trinh.create_rectangle(
+                0, 0, rong * ty_le, 4, fill=XANH, outline="")
+
+    # ---------------- Luồng chạy ----------------
 
     def chon_thu_muc(self):
         if self.dang_chay:
@@ -132,11 +307,14 @@ class CuaSoOKA(tk.Tk):
         if not duong_dan:
             return
 
-        self.nhan_duong_dan.config(text=duong_dan)
-        self.nut_chon.config(state="disabled")
-        self.nut_mo_thu_muc.config(state="disabled")
+        self.duong_dan_da_chon = duong_dan
+        self.nhan_duong_dan.config(text=duong_dan, fg=CHU)
+        self.nut_chon.config(state="disabled", text="⏳  Đang khám…")
+        for nut in (self.nut_mo_file, self.nut_mo_thu_muc, self.nut_chep):
+            nut.config(state="disabled")
         self.dang_chay = True
-        self.nhan_trang_thai.config(text="Đang bắt đầu...")
+        self._buoc_hien_tai = 0
+        self.nhan_trang_thai.config(text="Đang bắt đầu…", fg=CHU_MO)
 
         # Chạy nền - tkinter không thread-safe nếu cập nhật UI trực tiếp từ
         # thread khác, nên luồng nền chỉ đẩy chữ vào hàng đợi, UI tự đọc.
@@ -165,7 +343,9 @@ class CuaSoOKA(tk.Tk):
                 if isinstance(tin, tuple) and tin[0] == "LOI":
                     self._loi(tin[1])
                     return
-                self.nhan_trang_thai.config(text=tin)
+                self._buoc_hien_tai += 1
+                self._ve_tien_trinh(min(self._buoc_hien_tai / 5.0, 0.95))
+                self.nhan_trang_thai.config(text=tin, fg=CHU_MO)
         except queue.Empty:
             pass
         if self.dang_chay:
@@ -174,24 +354,66 @@ class CuaSoOKA(tk.Tk):
     def _hoan_tat(self, duong_dan_bao_cao):
         self.dang_chay = False
         self.duong_dan_bao_cao_vua_xong = duong_dan_bao_cao
-        self.nut_chon.config(state="normal")
-        self.nut_mo_thu_muc.config(state="normal")
-        self.nhan_trang_thai.config(text=f"✅ Xong! Đã lưu: {duong_dan_bao_cao}")
-        messagebox.showinfo(
-            "Xong!",
-            f"Đã khám xong.\n\nBáo cáo lưu tại:\n{duong_dan_bao_cao}\n\n"
-            f"Dán toàn bộ nội dung file này cho AI trước khi nhờ sửa code.",
+        self.nut_chon.config(state="normal", text="📂  Chọn thư mục…")
+        for nut in (self.nut_mo_file, self.nut_mo_thu_muc, self.nut_chep):
+            nut.config(state="normal")
+        self._ve_tien_trinh(1.0)
+        self.nhan_trang_thai.config(
+            text=f"✅  Đã lưu: {duong_dan_bao_cao}", fg=XANH)
+
+        so_lieu = rut_so_lieu(duong_dan_bao_cao)
+        for khoa, o in self.o_so.items():
+            o.config(text=so_lieu.get(khoa, "—"))
+        self.o_so["tiet_kiem"].config(fg=XANH)
+
+        canh_bao = so_lieu["canh_bao"]
+        if canh_bao:
+            self.nhan_canh_bao.config(
+                text=f"⚠  {len(canh_bao)} điểm cần chú ý:", fg=VANG)
+        else:
+            self.nhan_canh_bao.config(
+                text="✅  Không phát hiện rủi ro nổi bật.", fg=XANH)
+
+        self.o_canh_bao.config(state="normal")
+        self.o_canh_bao.delete("1.0", "end")
+        self.o_canh_bao.insert(
+            "1.0", "\n\n".join(canh_bao) if canh_bao
+            else "Không có tổ hợp rủi ro nào đáng báo động."
         )
+        self.o_canh_bao.config(state="disabled")
 
     def _loi(self, thong_diep_loi):
         self.dang_chay = False
-        self.nut_chon.config(state="normal")
-        self.nhan_trang_thai.config(text="❌ Có lỗi xảy ra.")
+        self.nut_chon.config(state="normal", text="📂  Chọn thư mục…")
+        self._ve_tien_trinh(0)
+        self.nhan_trang_thai.config(text="❌  Có lỗi xảy ra.", fg=DO)
         messagebox.showerror("Lỗi", f"Khám bệnh thất bại:\n{thong_diep_loi}")
+
+    # ---------------- Nút chân trang ----------------
+
+    def mo_file_bao_cao(self):
+        if self.duong_dan_bao_cao_vua_xong:
+            os.startfile(self.duong_dan_bao_cao_vua_xong)
 
     def mo_thu_muc_bao_cao(self):
         if self.duong_dan_bao_cao_vua_xong:
             os.startfile(os.path.dirname(self.duong_dan_bao_cao_vua_xong))
+
+    def chep_bao_cao(self):
+        if not self.duong_dan_bao_cao_vua_xong:
+            return
+        try:
+            with open(self.duong_dan_bao_cao_vua_xong, "r", encoding="utf-8") as f:
+                noi_dung = f.read()
+        except OSError as e:
+            messagebox.showerror("Lỗi", f"Không đọc được file báo cáo:\n{e}")
+            return
+        self.clipboard_clear()
+        self.clipboard_append(noi_dung)
+        self.update()   # giữ clipboard sống sau khi app đóng
+        self.nut_chep.config(text="✓  Đã chép! Dán cho AI ngay được")
+        self.after(2600, lambda: self.nut_chep.config(
+            text="📋  Chép nội dung để dán cho AI"))
 
 
 if __name__ == "__main__":

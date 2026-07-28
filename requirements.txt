@@ -3,3 +3,4 @@
 
 watchdog>=3.0        # Phế Tạng: lắng nghe thay đổi file real-time (thiếu thì quét mỗi 3s)
 customtkinter>=5.0    # Giao diện đồ họa (gui_nhan_tang.py) - bản CLI không cần
+tiktoken>=0.5         # Đếm token CHÍNH XÁC thay vì ước lượng ~4 ký tự/token
