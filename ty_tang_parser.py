@@ -9,6 +9,7 @@
 #      không đánh thức Thận đi backup. Không có gì mới thì không tốn tài nguyên.
 
 import os
+import re
 import ast
 import json
 import hashlib
@@ -19,7 +20,107 @@ from doc_mach_bus import xuong_song_trung_uong
 
 # Tăng số này mỗi khi Tỳ Tạng học được cách rút thêm tinh hoa mới,
 # để ký ức cũ tự lỗi thời và được nhai lại.
-PHIEN_BAN_TINH_HOA = 2
+PHIEN_BAN_TINH_HOA = 3   # +1: thêm nhánh JS/TS (regex)
+
+# ====================================================================
+# NHÁNH JS/TS/JSX/TSX - regex nhẹ, KHÔNG phải AST thật.
+#
+# Vì sao không dùng AST thật cho JS: cần thư viện ngoài (vd tree-sitter),
+# đi ngược triết lý "không cần cài gì thêm" của cả dự án. Regex thô hơn
+# (có thể sót vài kiểu cú pháp lạ) nhưng đủ để rút tên hàm/class/import -
+# tốt hơn nhiều so với bỏ qua hoàn toàn cả phần frontend như trước đây.
+# ====================================================================
+_RE_JS_FUNC = re.compile(
+    r'^[ \t]*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s+([A-Za-z_$][\w$]*)\s*\(([^)]*)\)',
+    re.MULTILINE,
+)
+_RE_JS_ARROW_CONST = re.compile(
+    r'^[ \t]*(?:export\s+)?(?:default\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::\s*[^=]+)?=\s*(?:async\s*)?\(([^)]*)\)\s*(?::\s*[^=]+)?=>',
+    re.MULTILINE,
+)
+_RE_JS_CLASS = re.compile(
+    r'^[ \t]*(?:export\s+)?(?:default\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)(?:\s+extends\s+([A-Za-z_$][\w$.]*))?',
+    re.MULTILINE,
+)
+_RE_JS_METHOD_SHORTHAND = re.compile(
+    r'^[ \t]*(?:public\s+|private\s+|protected\s+|static\s+|async\s+)*([A-Za-z_$][\w$]*)\s*\(([^)]*)\)\s*(?::\s*[^{]+)?\{',
+    re.MULTILINE,
+)
+_RE_JS_IMPORT = re.compile(
+    r'''^[ \t]*import\s+(?:[\w${},\s*]+\s+from\s+)?['"]([^'"]+)['"]''',
+    re.MULTILINE,
+)
+_RE_JS_REQUIRE = re.compile(r'''require\(\s*['"]([^'"]+)['"]\s*\)''')
+_RE_JS_CALL = re.compile(r'\b([A-Za-z_$][\w$]*)\s*\(')
+_JS_TU_KHOA = {
+    'if', 'for', 'while', 'switch', 'catch', 'function', 'return', 'typeof',
+    'new', 'in', 'of', 'else', 'do', 'try', 'throw', 'await', 'yield',
+    'constructor', 'super',
+}
+
+
+def _tim_khoi_dong(noi_dung, vi_tri_mo_ngoac):
+    """Tìm vị trí dấu '}' khớp với dấu '{' tại vi_tri_mo_ngoac (đếm độ sâu
+    ngoặc thô - không hiểu string/comment chứa ngoặc, nhưng đủ dùng cho
+    phần lớn code thật)."""
+    do_sau = 0
+    for i in range(vi_tri_mo_ngoac, len(noi_dung)):
+        if noi_dung[i] == '{':
+            do_sau += 1
+        elif noi_dung[i] == '}':
+            do_sau -= 1
+            if do_sau == 0:
+                return i
+    return None
+
+
+def _boc_tach_js(noi_dung):
+    """Rút tinh hoa từ JS/TS/JSX/TSX - xem ghi chú nhánh JS/TS phía trên."""
+    ham = {}
+    for m in _RE_JS_FUNC.finditer(noi_dung):
+        ham[m.group(1)] = f"({m.group(2).strip()})"
+    for m in _RE_JS_ARROW_CONST.finditer(noi_dung):
+        ham.setdefault(m.group(1), f"({m.group(2).strip()})")
+
+    classes = {}
+    for m in _RE_JS_CLASS.finditer(noi_dung):
+        ten_cls, ke_thua = m.group(1), m.group(2)
+        vi_tri_mo = noi_dung.find('{', m.end())
+        methods = {}
+        if vi_tri_mo != -1:
+            vi_tri_dong = _tim_khoi_dong(noi_dung, vi_tri_mo)
+            than = noi_dung[vi_tri_mo:vi_tri_dong] if vi_tri_dong else noi_dung[vi_tri_mo:vi_tri_mo + 3000]
+            for mm in _RE_JS_METHOD_SHORTHAND.finditer(than):
+                ten_m = mm.group(1)
+                if ten_m in _JS_TU_KHOA:
+                    continue
+                methods[ten_m] = f"({mm.group(2).strip()})"
+        classes[ten_cls] = {
+            "ke_thua": [ke_thua] if ke_thua else [],
+            "methods": methods,
+        }
+
+    imports = set()
+    for m in _RE_JS_IMPORT.finditer(noi_dung):
+        goc = m.group(1)
+        if goc.startswith('.'):
+            continue  # import nội bộ dự án (./foo) - chỉ giữ thư viện ngoài
+        imports.add(goc.split('/')[0])
+    for m in _RE_JS_REQUIRE.finditer(noi_dung):
+        goc = m.group(1)
+        if not goc.startswith('.'):
+            imports.add(goc.split('/')[0])
+
+    goi = {m.group(1) for m in _RE_JS_CALL.finditer(noi_dung)} - _JS_TU_KHOA
+
+    return {
+        "dong": noi_dung.count('\n') + 1,
+        "classes": classes,
+        "ham": ham,
+        "goi": sorted(goi),
+        "tham_chieu": [],
+        "import": sorted(imports),
+    }
 
 
 def _ten_duoc_goi(node):
@@ -77,12 +178,28 @@ class TyTang:
     # ---------------- Nhai code, rút bộ xương ----------------
 
     def boc_tach(self, duong_dan_file):
-        """Đọc một file .py, trả về bộ xương của nó (hoặc None nếu không nhai được)"""
+        """Đọc một file code, trả về bộ xương của nó (hoặc None nếu không
+        nhai được). Python dùng ast thật; JS/TS/JSX/TSX dùng regex nhẹ
+        (xem _boc_tach_js) - đuôi lạ khác thì chưa hỗ trợ, trả về None."""
+        _, duoi = os.path.splitext(duong_dan_file)
+        duoi = duoi.lower()
+
         try:
             with open(duong_dan_file, 'r', encoding='utf-8') as f:
                 noi_dung = f.read()
+        except OSError:
+            return None
+
+        if duoi != '.py':
+            if duoi not in cfg.CAC_DUOI_HO_TRO:
+                return None
+            tinh_hoa = _boc_tach_js(noi_dung)
+            tinh_hoa["van_tay"] = self._van_tay(tinh_hoa)
+            return tinh_hoa
+
+        try:
             cay_code = ast.parse(noi_dung)
-        except (OSError, SyntaxError, ValueError):
+        except (SyntaxError, ValueError):
             return None
 
         tinh_hoa = {
@@ -236,7 +353,7 @@ class TyTang:
 
     def tieu_hoa_code(self, duong_dan_file):
         """Nhận một file vừa đổi. Chỉ ghi nhớ nếu CẤU TRÚC thực sự khác trước."""
-        if not duong_dan_file or not str(duong_dan_file).endswith('.py'):
+        if not duong_dan_file or os.path.splitext(str(duong_dan_file))[1].lower() not in cfg.CAC_DUOI_HO_TRO:
             return
         if cfg.la_ta_khi(duong_dan_file):
             return
@@ -288,7 +405,7 @@ class TyTang:
         for root, dirs, files in os.walk(benh_nhan):
             dirs[:] = [d for d in dirs if d not in cfg.TA_KHI_DIRS]
             for ten in files:
-                if ten.endswith('.py'):
+                if os.path.splitext(ten)[1].lower() in cfg.CAC_DUOI_HO_TRO:
                     self.tieu_hoa_code(os.path.join(root, ten))
                     so_file += 1
 

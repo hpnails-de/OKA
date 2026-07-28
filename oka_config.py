@@ -47,7 +47,14 @@ TA_KHI_DIRS = {
     'venv', 'env', '.venv', 'node_modules', '.git', '__pycache__',
     'site-packages', 'dist', 'build', '.idea', '.vscode',
     'KHO_NGUYEN_KHI', 'HO_SO_BENH_AN',
+    '.next', '.nuxt', '.turbo', 'coverage', '.parcel-cache',
 }
+
+# Các đuôi file Tỳ Tạng biết "nhai" (rút chữ ký hàm/class/import). Python
+# dùng ast thật (chính xác); JS/TS/JSX/TSX dùng regex nhẹ (thô hơn nhưng
+# không cần cài thư viện nặng như tree-sitter - giữ đúng triết lý "không
+# cần cài gì thêm" của cả dự án).
+CAC_DUOI_HO_TRO = {'.py', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'}
 
 # ==============================================================
 #  Y LỆNH - Các thói quen điều trị (bật/tắt hành vi của Tool)

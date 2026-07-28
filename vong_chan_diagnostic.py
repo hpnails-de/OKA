@@ -6,10 +6,10 @@
 # thì phải nhờ tới Thiết Chẩn (bắt mạch) - xem thiet_chan_pulse.py
 
 import os
-import ast
 
 import oka_config as cfg
 from doc_mach_bus import xuong_song_trung_uong
+from ty_tang_parser import ty_tang_trung_uong
 
 
 class VongChan:
@@ -21,13 +21,15 @@ class VongChan:
             'tab_', 'suno_', 'oka_', 'gui_', 'main', 'engine', 'bot', 'master',
             'tang_', 'mach_', 'chan_', 'app', 'core',
         ]
-        # Tên thư mục package gần như phổ quát trong mọi dự án Python (không
-        # phải suy đoán riêng cho dự án nào) - kể cả khi thiếu __init__.py
-        # (namespace package hoặc code cũ), đây vẫn gần như chắc chắn là code
-        # thật, không phải rác/scratch.
+        # Tên thư mục package gần như phổ quát trong mọi dự án (Python lẫn
+        # JS/TS) - kể cả khi thiếu __init__.py/package.json, đây vẫn gần như
+        # chắc chắn là code thật, không phải rác/scratch.
         self.THU_MUC_PHO_QUAT = {
             'utils', 'util', 'lib', 'core', 'common', 'helpers', 'helper',
             'services', 'models', 'src',
+            # thêm cho JS/TS/React:
+            'components', 'pages', 'hooks', 'store', 'routes', 'api',
+            'controllers', 'views', 'app',
         }
 
     def _dem_dong(self, duong_dan):
@@ -53,7 +55,8 @@ class VongChan:
             dirs[:] = [d for d in dirs if d not in cfg.TA_KHI_DIRS]
 
             for ten in files:
-                if not ten.endswith(".py"):
+                duoi = os.path.splitext(ten)[1].lower()
+                if duoi not in cfg.CAC_DUOI_HO_TRO:
                     continue
 
                 full_path = os.path.join(root, ten)
@@ -61,26 +64,30 @@ class VongChan:
                 rel = os.path.relpath(full_path, benh_nhan)
                 la_goc = (os.path.normpath(root) == os.path.normpath(benh_nhan))
                 co_dau_hieu = any(kw in ten.lower() for kw in self.NGUYEN_KHI_KEYWORDS)
-                # Tín hiệu đáng tin hơn so khớp tên: thư mục có __init__.py là
-                # package Python thật - việc ĐẶT TÊN không đoán ra được nhưng
-                # cấu trúc package thì không thể giả. Thiếu tín hiệu này khiến
-                # cả utils/*.py và ui/tabs/*.py (code thật, không phải dị vật)
-                # từng bị chấm nhầm thành dị vật chỉ vì tên file không khớp
-                # từ khóa may rủi (phát hiện qua chính Thượng Trí soi lại).
-                la_package = '__init__.py' in files
+                # Tín hiệu đáng tin hơn so khớp tên: thư mục có __init__.py
+                # (package Python) hoặc package.json (package JS/TS) là dấu
+                # hiệu cấu trúc thật, không thể giả - việc ĐẶT TÊN không đoán
+                # ra được. Thiếu tín hiệu này khiến cả utils/*.py và
+                # ui/tabs/*.py (code thật, không phải dị vật) từng bị chấm
+                # nhầm thành dị vật chỉ vì tên file không khớp từ khóa may
+                # rủi (phát hiện qua chính Thượng Trí soi lại).
+                la_package = '__init__.py' in files or 'package.json' in files
                 ten_thu_muc = os.path.basename(os.path.normpath(root)).lower()
                 la_thu_muc_pho_quat = ten_thu_muc in self.THU_MUC_PHO_QUAT
 
                 if la_goc or co_dau_hieu or la_package or la_thu_muc_pho_quat:
-                    try:
-                        with open(full_path, 'r', encoding='utf-8') as f:
-                            cay = ast.parse(f.read())
-                        so_ham = sum(
-                            1 for n in ast.walk(cay)
-                            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    # Dùng lại đúng bộ rút trích của Tỳ Tạng (ast cho .py,
+                    # regex cho JS/TS) - trước đây gọi thẳng ast.parse() ở
+                    # đây, nên MỌI file JS/TS chính chủ đều bị ast.parse ném
+                    # SyntaxError (cú pháp JS không phải Python) và bị chấm
+                    # nhầm thành "cú pháp hỏng".
+                    tinh_hoa = ty_tang_trung_uong.boc_tach(full_path)
+                    if tinh_hoa is not None:
+                        so_ham = len(tinh_hoa["ham"]) + sum(
+                            len(c.get("methods", {})) for c in tinh_hoa["classes"].values()
                         )
                         nguyen_khi_files.append((rel, loc, so_ham))
-                    except (OSError, SyntaxError, ValueError):
+                    else:
                         di_vat_files.append((rel, loc, 'hong'))
                 else:
                     di_vat_files.append((rel, loc, 'la'))
