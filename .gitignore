@@ -1,0 +1,18 @@
+# Dữ liệu cá nhân - hồ sơ bệnh án, nguyên khí, đăng ký bệnh nhân
+HO_SO_BENH_AN/
+KHO_NGUYEN_KHI/
+OKA_BENH_NHAN.json
+OKA_MEMORY.json
+OKA_system.log
+
+# Claude Code local settings (launch.json ở đây trỏ sang dự án khác - rác leftover)
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
