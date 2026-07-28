@@ -32,9 +32,16 @@ class ThuongTri:
         xuong_song_trung_uong.dang_ky_nhan_khi("YEU_CAU_BAT_MACH", self.tong_hop)
 
     def _dem_ham_trong_file(self, mach, khoa):
+        """Đếm đúng số 'tên' mà file này định nghĩa - PHẢI khớp với cách
+        dung_mach_do() (thiet_chan_pulse.py) xây noi_sinh, vì đó chính là
+        nguồn của khi_chet. Bug từng gặp: quên cộng số CLASS (chỉ cộng
+        methods bên trong), khiến mẫu số thiếu -> tỷ lệ khí chết có thể
+        vượt quá 100% (23/22 hàm) một cách vô lý.
+        """
         tinh_hoa = mach["ky_uc"].get("files", {}).get(khoa, {})
-        so = len(tinh_hoa.get("ham", {}))
-        for than in tinh_hoa.get("classes", {}).values():
+        classes = tinh_hoa.get("classes", {})
+        so = len(tinh_hoa.get("ham", {})) + len(classes)  # +len(classes): chính class cũng là 1 "tên" trong noi_sinh
+        for than in classes.values():
             so += len(than.get("methods", {}))
         return so
 
