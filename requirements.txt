@@ -1,0 +1,5 @@
+# Cả hai đều TÙY CHỌN - OKA tự chuyển sang chế độ rút gọn nếu thiếu.
+# Bản dòng lệnh (main_kosmon.py) không cần thư viện nào ngoài chuẩn Python.
+
+watchdog>=3.0        # Phế Tạng: lắng nghe thay đổi file real-time (thiếu thì quét mỗi 3s)
+customtkinter>=5.0    # Giao diện đồ họa (gui_nhan_tang.py) - bản CLI không cần

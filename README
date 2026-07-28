@@ -1,3 +1,51 @@
+# OKA_System — Thầy Thuốc cho code do AI viết
+
+OKA không phải tool tự viết code. Nó là **công cụ chẩn đoán** gắn vào một dự án
+khác (thường là dự án bạn để AI viết giúp) — đọc cấu trúc, tìm chỗ rủi ro,
+soi dấu hiệu vá triệu chứng mà chưa chạm gốc, rồi xuất một bản tóm tắt cực
+nhẹ ("Chân Kinh") để dán cho AI trước khi nhờ nó sửa tiếp, giúp AI không bịa
+ra hàm không tồn tại hay phá vỡ chỗ khác khi sửa.
+
+## Cài đặt
+
+Chỉ cần Python 3.9+ và thư viện chuẩn — **không bắt buộc cài gì thêm**.
+Hai thư viện dưới đây là tùy chọn, thiếu vẫn chạy được (tự chuyển sang chế độ
+rút gọn):
+
+```bash
+pip install -r requirements.txt   # tùy chọn: bản CLI không cần cũng chạy được
+```
+
+## Cách dùng — khám một dự án
+
+```bash
+# Lần đầu, hoặc muốn đổi sang khám dự án khác:
+python main_kosmon.py "duong/dan/toi/du_an_can_kham"
+
+# Lần sau, khám lại đúng dự án vừa khám gần nhất (không cần gõ lại đường dẫn):
+python main_kosmon.py
+```
+
+Sau khi khởi động, gõ lệnh tại dấu nhắc `👉 Nhập lệnh:` (gõ `lenh` để xem lại
+bảng đầy đủ bất cứ lúc nào):
+
+| Lệnh | Chức năng |
+|---|---|
+| `nhai` | Tỳ Tạng tiêu hóa toàn bộ dự án — **luôn làm lệnh này trước tiên** |
+| `kham` | Vọng Chẩn — nhìn sắc diện: file nào chính chủ, file nào lạ, file nào phình to |
+| `mach` | Thiết Chẩn bắt mạch (huyệt hiểm, khí chết) + Can Tạng soi tái phát + Thượng Trí tự tổng hợp nhận định |
+| `mach <tên hàm>` | Sửa hàm này thì hỏng những đâu? |
+| `goc` | Can Tạng — file nào đang bị vá triệu chứng, chưa chạm gốc |
+| `kinh [từ khóa]` | Xuất Chân Kinh — bản tóm tắt để dán cho AI trước khi nhờ nó sửa code |
+| `benhnhan` | Xem / đổi dự án đang khám |
+| `hoisinh <file>` | Phục hồi file từ bản Nguyên Khí (backup) đã lưu |
+| `don` | Đại Trường dọn rác (.temp, cache...) |
+| `thoat` | Đóng lại |
+
+Có GUI riêng (cần `pip install customtkinter`): `python gui_nhan_tang.py`.
+
+---
+
 🌿 BỘ KHUNG THẦN KINH: NGŨ TẠNG (5 Core Modules - Lưu trữ Tinh Hoa)
 
 Tạng (Âm) có chức năng tàng trữ, lưu giữ tinh khí mà không làm thất thoát. Đây là các Module lõi của Tool, làm nhiệm vụ giữ gìn "Linh hồn" và "Ký ức" của dự án.
