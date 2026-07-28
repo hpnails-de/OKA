@@ -20,6 +20,7 @@ from doc_mach_bus import xuong_song_trung_uong
 from nham_mach_store import nham_mach_trung_uong
 from thiet_chan_pulse import thiet_chan_trung_uong
 from vong_chan_diagnostic import vong_chan_trung_uong
+from can_tang_goc import can_tang_trung_uong
 
 
 class ThuongTri:
@@ -103,6 +104,29 @@ class ThuongTri:
                     f"(~{len(ds) / tong_ham:.0%}) - nhiều khả năng cả file là "
                     f"rác còn sót, nên cân nhắc xóa hẳn thay vì dọn từng hàm."
                 )
+
+        # --- D2: Can Tạng - file tái phát (Anthony William: vá triệu chứng
+        # mãi không chạm gốc thì bệnh cứ tái đi tái lại). Chỉ đáng nói khi
+        # file đó CŨNG là huyệt hiểm hoặc phình to - tái phát ở một file nhỏ,
+        # không ai gọi thì không đáng bận tâm bằng.
+        goc_so_lieu = can_tang_trung_uong._thong_ke(benh_nhan)
+        if goc_so_lieu:
+            huyet_hiem_ten = {ten for ten, so in mach["huyet_hiem"] if so > 0}
+            for ten_file, gan, tong in goc_so_lieu["qua_tai"]:
+                # noi_sinh dùng đường dẫn tương đối (vd 'engine\\rpc.py'), còn
+                # Can Tạng chỉ có basename - so khớp theo đuôi đường dẫn.
+                lien_quan_huyet_hiem = any(
+                    ten in huyet_hiem_ten and any(k.endswith(ten_file) for k in ds)
+                    for ten, ds in mach["noi_sinh"].items()
+                )
+                lien_quan_phinh = any(k.endswith(ten_file) for k in phinh_ten)
+                if lien_quan_huyet_hiem or lien_quan_phinh:
+                    nhan_dinh.append(
+                        f"🫘 '{ten_file}' vừa bị sửa cấu trúc {gan} lần trong "
+                        f"{cfg.KHUNG_GIO_QUA_TAI}h gần đây, VỪA là huyệt hiểm/file "
+                        f"phình to - dấu hiệu đang vá triệu chứng ở một chỗ vốn đã "
+                        f"rủi ro cao, chưa chạm gốc."
+                    )
 
         # --- D: Tỷ trọng dị vật quá cao ---
         tong = len(nguyen_khi) + len(di_vat)

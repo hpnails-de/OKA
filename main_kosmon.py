@@ -27,7 +27,8 @@ import dai_truong_cleaner       # Đại Trường - đào thải rác
 import tam_tieu_network         # Tam Tiêu   - giao tiếp ngoại giới
 import vong_chan_diagnostic     # Vọng Chẩn  - nhìn sắc diện
 import thiet_chan_pulse         # Thiết Chẩn - bắt mạch
-import thuong_tri_tong_hop      # Thượng Trí - tổng hợp nhận định (chạy sau Thiết Chẩn)
+import can_tang_goc             # Can        - soi gốc quá tải (tái phát)
+import thuong_tri_tong_hop      # Thượng Trí - tổng hợp nhận định (chạy sau Thiết Chẩn + Can)
 
 from phe_watchdog import khoi_dong_nhip_tho, CO_WATCHDOG
 from vi_receiver import ViTang

@@ -16,6 +16,7 @@ BANG_LENH = """
    kham            - Vọng Chẩn: nhìn sắc diện dự án
    mach            - Thiết Chẩn: bắt mạch, tìm huyệt hiểm & khí chết
    mach <tên hàm>  - Sửa hàm này thì hỏng những đâu?
+   goc             - Can Tạng: soi file nào đang bị vá triệu chứng, chưa chạm gốc
    kinh [từ khóa]  - Xuất Chân Kinh cho AI (có từ khóa thì chỉ lấy phần liên quan)
    benhnhan        - Xem / đổi bệnh nhân đang khám
    hoisinh <file>  - Thận Tạng phục hồi file từ bản Nguyên Khí
@@ -69,6 +70,9 @@ class ViTang:
                 xuong_song_trung_uong.phat_khi("YEU_CAU_DO_ANH_HUONG", tham_so)
             else:
                 xuong_song_trung_uong.phat_khi("YEU_CAU_BAT_MACH", cfg.benh_nhan_hien_tai())
+
+        elif lenh == 'goc':
+            xuong_song_trung_uong.phat_khi("YEU_CAU_KHAM_GOC", cfg.benh_nhan_hien_tai())
 
         elif lenh == 'kinh':
             xuong_song_trung_uong.phat_khi("YEU_CAU_CHAN_KINH", {"loc": tham_so or None})

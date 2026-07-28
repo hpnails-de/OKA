@@ -63,6 +63,13 @@ NGUONG_PHINH_TO = 350
 # Số bản Nguyên Khí (backup) giữ lại tối đa cho mỗi file
 SO_BAN_NGUYEN_KHI_GIU = 10
 
+# --- Can Tạng: ngưỡng "tái phát" (Anthony William - gan quá tải là gốc của
+# phần lớn bệnh mãn tính; chữa triệu chứng mãi không chạm gốc thì tái đi tái
+# lại). Một file bị cất Nguyên Khí (tức đổi cấu trúc thật) từ NGUONG_TAI_PHAT
+# lần trở lên trong KHUNG_GIO_QUA_TAI giờ gần đây -> nghi đang vá triệu chứng.
+NGUONG_TAI_PHAT = 3
+KHUNG_GIO_QUA_TAI = 24
+
 
 def _slug(duong_dan):
     """Biến đường dẫn dự án thành tên thư mục hồ sơ an toàn.
