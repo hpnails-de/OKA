@@ -72,6 +72,17 @@ class TamTang:
             "",
         ]
 
+        # Thượng Trí đã tổng hợp nhận định (nếu đã chạy 'mach' cho đúng bệnh
+        # nhân này) - gắn lên đầu để AI đọc cảnh báo trước khi đụng vào code,
+        # không chỉ người ngồi xem terminal mới thấy.
+        ket_luan = nham_mach_trung_uong.lay_khi_huyet("ket_luan_thuong_tri")
+        if ket_luan and ket_luan.get("benh_nhan") == benh_nhan:
+            dong = [
+                "### 🧠 NHẬN ĐỊNH THƯỢNG TRÍ (đọc trước khi sửa code) ###",
+                ket_luan["van_ban"],
+                "",
+            ] + dong
+
         for khoa in sorted(khoa_lay):
             tinh_hoa = khoa_lay[khoa]
             dong.append(f"📂 {khoa}  ({tinh_hoa.get('dong', '?')} dòng)")

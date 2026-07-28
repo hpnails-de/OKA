@@ -106,14 +106,15 @@ class ThietChan:
 
     # ---------------- Bắt mạch tổng quát ----------------
 
-    def bat_mach(self, benh_nhan=None):
-        """Xem toàn bộ khí huyết dự án: chỗ nào là huyệt hiểm, chỗ nào khí chết"""
+    def _tinh_mach(self, benh_nhan=None):
+        """Tính thuần túy, KHÔNG in gì - để Thượng Trí gọi lại mà không bị
+        Thiết Chẩn in report một lần nữa (bat_mach() vẫn in như cũ, gọi
+        hàm này bên trong)."""
         mach = self.dung_mach_do(benh_nhan)
         ky_uc = mach["ky_uc"]
         files = ky_uc.get("files", {})
 
         if not files:
-            print("⚠️ [THIẾT CHẨN]: Ký ức trống. Hãy chạy 'nhai' để Tỳ Tạng tiêu hóa dự án trước.")
             return None
 
         # Huyệt hiểm: hàm được nhiều nơi gọi -> đụng vào là chấn động toàn thân
@@ -133,6 +134,25 @@ class ThietChan:
             and ten not in mach["nguoi_nhac"]
             and not rieng_tu(ten)
         )
+
+        phinh = [(k, v.get("dong", 0)) for k, v in files.items()
+                 if v.get("dong", 0) > cfg.NGUONG_PHINH_TO]
+
+        mach["huyet_hiem"] = huyet_hiem
+        mach["khi_chet"] = khi_chet
+        mach["phinh"] = phinh
+        return mach
+
+    def bat_mach(self, benh_nhan=None):
+        """Xem toàn bộ khí huyết dự án: chỗ nào là huyệt hiểm, chỗ nào khí chết"""
+        mach = self._tinh_mach(benh_nhan)
+        if mach is None:
+            print("⚠️ [THIẾT CHẨN]: Ký ức trống. Hãy chạy 'nhai' để Tỳ Tạng tiêu hóa dự án trước.")
+            return None
+
+        files = mach["ky_uc"].get("files", {})
+        huyet_hiem = mach["huyet_hiem"]
+        khi_chet = mach["khi_chet"]
 
         print("\n" + "✨ " * 5)
         print(f"🫀 [THIẾT CHẨN]: BẮT MẠCH DỰ ÁN {os.path.basename(mach['benh_nhan'])}")
@@ -154,8 +174,7 @@ class ThietChan:
                 print(f"   ... và {len(khi_chet) - 15} chỗ nữa.")
 
         # File phình to: Vọng Chẩn nhìn thấy, Thiết Chẩn xác nhận bằng số liệu
-        phinh = [(k, v.get("dong", 0)) for k, v in files.items()
-                 if v.get("dong", 0) > cfg.NGUONG_PHINH_TO]
+        phinh = mach["phinh"]
         if phinh:
             print(f"\n🔴 TẠNG PHỦ PHÌNH TO (quá {cfg.NGUONG_PHINH_TO} dòng):")
             for k, d in sorted(phinh, key=lambda x: -x[1]):
