@@ -102,7 +102,7 @@ def rut_so_lieu(duong_dan_bao_cao):
         so_lieu["so_file"] = m.group(1)
 
     m = re.search(
-        r"Ném cả source: ~([\d,]+) token\s*\|\s*Chân Kinh: ~([\d,]+) token\s*\|\s*Tiết kiệm ~(\d+)%",
+        r"Ném cả source: ~([\d,]+) token\s*\|\s*Chân Kinh: ~([\d,]+) token\s*\|\s*Tiết kiệm ~([\d.]+)%",
         noi_dung,
     )
     if m:

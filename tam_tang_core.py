@@ -177,13 +177,17 @@ class TamTang:
             token_tho = tong_dong * 10   # đường lui khi file đã bị xóa/đổi chỗ
 
         token_kinh = uoc_luong_token(chan_kinh)
-        ti_le = 100 - (token_kinh * 100 // token_tho)
+        # Chia số nguyên làm tròn xuống, nên khi Chân Kinh nhỏ hơn 1% source
+        # thì "100 - 0" ra đúng 100% - hiện "Tiết kiệm 100%" là nói dối trắng
+        # trợn (nghĩa là không tốn token nào). Dùng số thực và cắt trần 99.9%.
+        ti_le = 100.0 - (token_kinh * 100.0 / token_tho)
+        ti_le_chu = f"{min(ti_le, 99.9):.1f}"
 
         do_chinh_xac = "đo thật" if _BO_MA_HOA is not None else "ước lượng"
         pham_vi = f"{len(files)} file" + (f" khớp '{loc}'" if loc else "")
         return (f"📊 [{pham_vi}]  Ném cả source: ~{token_tho:,} token  |  "
                 f"Chân Kinh: ~{token_kinh:,} token  |  "
-                f"Tiết kiệm ~{ti_le}%  ({do_chinh_xac})")
+                f"Tiết kiệm ~{ti_le_chu}%  ({do_chinh_xac})")
 
 
 # Khởi tạo thực thể Tâm Tạng duy nhất

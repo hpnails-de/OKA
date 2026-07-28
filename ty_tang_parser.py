@@ -357,6 +357,8 @@ class TyTang:
             return
         if cfg.la_ta_khi(duong_dan_file):
             return
+        if cfg.la_file_sinh_tu_dong(duong_dan_file):
+            return
 
         benh_nhan = cfg.tim_benh_nhan_cua(duong_dan_file)
         ky_uc = self.tai_ky_uc(benh_nhan)
@@ -401,15 +403,44 @@ class TyTang:
         """Nhai trọn một dự án - dùng khi mới nhận bệnh nhân"""
         benh_nhan = benh_nhan or cfg.benh_nhan_hien_tai()
         so_file = 0
+        con_song = set()
 
         for root, dirs, files in os.walk(benh_nhan):
-            dirs[:] = [d for d in dirs if d not in cfg.TA_KHI_DIRS]
+            dirs[:] = [
+                d for d in dirs
+                if d not in cfg.TA_KHI_DIRS
+                and not cfg.la_thu_muc_trinh_duyet(os.path.join(root, d))
+            ]
             for ten in files:
-                if os.path.splitext(ten)[1].lower() in cfg.CAC_DUOI_HO_TRO:
-                    self.tieu_hoa_code(os.path.join(root, ten))
-                    so_file += 1
+                if os.path.splitext(ten)[1].lower() not in cfg.CAC_DUOI_HO_TRO:
+                    continue
+                duong_dan = os.path.join(root, ten)
+                if cfg.la_file_sinh_tu_dong(duong_dan):
+                    continue
+                self.tieu_hoa_code(duong_dan)
+                so_file += 1
+                try:
+                    con_song.add(os.path.relpath(duong_dan, benh_nhan))
+                except ValueError:
+                    con_song.add(ten)
 
+        # ĐÀO THẢI ký ức lỗi thời. Bản cũ chỉ biết THÊM, không bao giờ xóa,
+        # nên file đã bị xóa khỏi dự án (hoặc nay bị loại trừ như rác Chrome)
+        # vẫn nằm lại trong ký ức mãi mãi - khiến Chân Kinh mô tả những thứ
+        # KHÔNG CÒN TỒN TẠI, và con số token bị thổi phồng theo. Đúng tinh
+        # thần "Tỳ chủ vận hóa": cái gì không còn nuôi cơ thể thì thải ra.
         ky_uc = self.tai_ky_uc(benh_nhan)
+        lac_hau = [k for k in ky_uc["files"] if k not in con_song]
+        for k in lac_hau:
+            del ky_uc["files"][k]
+        if lac_hau:
+            self.luu_ky_uc(benh_nhan)
+            xuong_song_trung_uong.phat_khi(
+                "GHI_LOG",
+                f"TỲ TẠNG: Đã đào thải {len(lac_hau)} bộ xương lỗi thời "
+                f"(file đã xóa hoặc nay bị loại trừ)."
+            )
+
         xuong_song_trung_uong.phat_khi(
             "GHI_LOG",
             f"TỲ TẠNG: Đã nhai xong {so_file} file, ký ức đang giữ {len(ky_uc['files'])} bộ xương."

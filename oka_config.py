@@ -48,7 +48,24 @@ TA_KHI_DIRS = {
     'site-packages', 'dist', 'build', '.idea', '.vscode',
     'KHO_NGUYEN_KHI', 'HO_SO_BENH_AN',
     '.next', '.nuxt', '.turbo', 'coverage', '.parcel-cache',
+    # --- Hồ sơ trình duyệt (Chrome/Edge/Firefox) ---
+    # Dự án tự động hóa hay kèm sẵn profile trình duyệt; bên trong là hàng
+    # chục nghìn file JS của Google/tiện ích bên thứ ba. Bỏ sót nhóm này thì
+    # OKA đi "khám" code của Google chứ không phải code của người dùng:
+    # đã gặp thật - 70/72 file JS quét được là rác Chrome extension, khiến
+    # số token phồng lên 6,8 triệu và cảnh báo ngập rác.
+    'Extensions', 'Crashpad', 'Code Cache', 'Service Worker',
+    'GrShaderCache', 'GraphiteDawnCache', 'ShaderCache', 'component_crx_cache',
+    'Local Storage', 'Session Storage', 'IndexedDB', 'blob_storage',
+    'optimization_guide_model_store', 'segmentation_platform',
 }
+
+# Đuôi file chắc chắn là bản dựng/rút gọn, không phải code người viết
+DUOI_SINH_TU_DONG = ('.min.js', '.bundle.js', '.chunk.js', '.min.css',
+                     '.map', '.d.ts')
+
+# Một dòng dài trung bình quá ngưỡng này => file đã bị nén/minify
+NGUONG_DONG_DAI_MINIFY = 200
 
 # Các đuôi file Tỳ Tạng biết "nhai" (rút chữ ký hàm/class/import). Python
 # dùng ast thật (chính xác); JS/TS/JSX/TSX dùng regex nhẹ (thô hơn nhưng
@@ -115,6 +132,56 @@ def la_ta_khi(duong_dan):
     """Đường dẫn này có nằm trong vùng Tà Khí không?"""
     phan = os.path.normpath(duong_dan).split(os.sep)
     return any(p in TA_KHI_DIRS for p in phan)
+
+
+# Chữ ký nhận diện thư mục hồ sơ trình duyệt (Chrome/Edge/Brave...).
+# Liệt kê TÊN thư mục con là cách chống đỡ yếu - Chrome đẻ ra hàng chục thư
+# mục con tên khác nhau (WasmTtsEngine, GPUPersistentCache, Crowd Deny...),
+# không thể liệt kê hết. Nhận theo CẤU TRÚC thì chắc ăn: mọi profile Chrome
+# đều có các file/thư mục mốc này ở gốc profile.
+DAU_HIEU_TRINH_DUYET = {
+    'Local State', 'Last Browser', 'Secure Preferences',
+    'BrowserMetrics', 'Crashpad',
+}
+
+
+def la_thu_muc_trinh_duyet(duong_dan_thu_muc):
+    """Thư mục này có phải gốc một hồ sơ trình duyệt không?
+
+    Cần ít nhất 2 dấu hiệu để tránh bắt nhầm thư mục thường có 1 file
+    trùng tên ngẫu nhiên.
+    """
+    try:
+        ben_trong = set(os.listdir(duong_dan_thu_muc))
+    except OSError:
+        return False
+    return len(ben_trong & DAU_HIEU_TRINH_DUYET) >= 2
+
+
+def la_file_sinh_tu_dong(duong_dan):
+    """File này do MÁY sinh ra (minify/bundle) chứ không phải người viết?
+
+    Hai tầng nhận diện:
+      1. Đuôi file lộ liễu (.min.js, .bundle.js...)
+      2. Đo độ dài dòng trung bình - code người viết hiếm khi vượt 200
+         ký tự/dòng, còn file minify thì cả nghìn ký tự dồn một dòng.
+
+    Vì sao cần: đưa file minify vào Chân Kinh vừa tốn token khủng khiếp
+    vừa vô nghĩa (tên hàm đã bị đổi thành a, b, c...).
+    """
+    ten = os.path.basename(duong_dan).lower()
+    if ten.endswith(DUOI_SINH_TU_DONG):
+        return True
+    try:
+        kich_thuoc = os.path.getsize(duong_dan)
+        if kich_thuoc < 2000:          # file nhỏ thì khỏi đo, chắc chắn không phải bundle
+            return False
+        with open(duong_dan, 'r', encoding='utf-8', errors='replace') as f:
+            noi_dung = f.read(200_000)
+        so_dong = noi_dung.count('\n') + 1
+        return (len(noi_dung) / so_dong) > NGUONG_DONG_DAI_MINIFY
+    except OSError:
+        return False
 
 
 # ==============================================================

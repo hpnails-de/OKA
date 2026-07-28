@@ -52,7 +52,11 @@ class VongChan:
         di_vat_files = []       # code lạ hoặc hỏng
 
         for root, dirs, files in os.walk(benh_nhan):
-            dirs[:] = [d for d in dirs if d not in cfg.TA_KHI_DIRS]
+            dirs[:] = [
+                d for d in dirs
+                if d not in cfg.TA_KHI_DIRS
+                and not cfg.la_thu_muc_trinh_duyet(os.path.join(root, d))
+            ]
 
             for ten in files:
                 duoi = os.path.splitext(ten)[1].lower()
@@ -60,6 +64,8 @@ class VongChan:
                     continue
 
                 full_path = os.path.join(root, ten)
+                if cfg.la_file_sinh_tu_dong(full_path):
+                    continue
                 loc = self._dem_dong(full_path)
                 rel = os.path.relpath(full_path, benh_nhan)
                 la_goc = (os.path.normpath(root) == os.path.normpath(benh_nhan))
