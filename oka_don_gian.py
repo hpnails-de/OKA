@@ -69,14 +69,42 @@ def kham_benh_va_xuat_file(duong_dan_du_an, bao_trang_thai=lambda msg: None):
     with contextlib.redirect_stdout(dem):
         xuong_song_trung_uong.phat_khi("YEU_CAU_CHAN_KINH", {"loc": None})
 
+    # Vẽ Mandala - hỏng ở đây thì báo cáo chữ vẫn phải ra bình thường,
+    # nên bọc riêng, không để một hình vẽ làm chết cả lượt khám.
+    bao_trang_thai("Đang vẽ Mandala...")
+    duong_dan_svg = None
+    try:
+        from thiet_chan_pulse import thiet_chan_trung_uong
+        import cum_chuc_nang
+        import mandala_svg
+        with contextlib.redirect_stdout(dem):
+            mach = thiet_chan_trung_uong._tinh_mach(duong_dan_du_an)
+        if mach:
+            cac_cum = cum_chuc_nang.gom_cum(mach)
+            hang_xom = cum_chuc_nang.dung_do_thi_file(mach)
+            duong_dan_svg = mandala_svg.ve_mandala(
+                cac_cum, hang_xom, ten_du_an,
+                os.path.join(duong_dan_du_an, f"OKA_MANDALA_{ten_du_an}.svg"),
+            )
+    except Exception as e:
+        dem.write(f"\n⚠️ Không vẽ được Mandala: {e}\n")
+
     duong_dan_bao_cao = os.path.join(
         duong_dan_du_an, f"OKA_BAO_CAO_{ten_du_an}.md"
+    )
+    ghi_chu_svg = (
+        f"\nSơ đồ trực quan: `{os.path.basename(duong_dan_svg)}` "
+        f"(mở bằng trình duyệt)\n" if duong_dan_svg else ""
     )
     noi_dung = (
         f"# Báo cáo khám bệnh OKA — {ten_du_an}\n\n"
         f"Dán TOÀN BỘ file này cho AI trước khi nhờ nó sửa code trong dự án -\n"
         f"AI sẽ biết trước cấu trúc thật, chỗ nào rủi ro, chỗ nào là rác,\n"
-        f"thay vì phải đọc lại từng file một.\n\n"
+        f"thay vì phải đọc lại từng file một.\n"
+        f"{ghi_chu_svg}\n"
+        f"Mỗi nhận định có gắn nhãn độ tin cậy: **CHẮC CHẮN** = đếm được từ\n"
+        f"code, không cãi được; **SUY ĐOÁN** = dựa trên quy tắc phỏng đoán,\n"
+        f"cần tự kiểm lại trước khi hành động.\n\n"
         "```\n" + dem.getvalue() + "\n```\n"
     )
     with open(duong_dan_bao_cao, "w", encoding="utf-8") as f:

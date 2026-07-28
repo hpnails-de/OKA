@@ -57,7 +57,15 @@ class ThuongTri:
         di_vat_ten = {rel for rel, _, _ in di_vat}
         phinh_ten = {k for k, _ in mach["phinh"]}
 
-        nhan_dinh = []
+        # Mỗi nhận định kèm ĐỘ TIN CẬY, để người/AI đọc biết chỗ nào tin được
+        # ngay và chỗ nào phải tự kiểm lại:
+        #   CHAC   = đọc thẳng từ cấu trúc code (đếm được, không cãi được)
+        #   DOAN   = dựa trên quy tắc phỏng đoán, HOÀN TOÀN có thể sai
+        # Đây là điểm mà công cụ phân tích tĩnh hay giấu: gộp chung mọi kết
+        # luận thành một giọng chắc nịch, khiến người đọc tin cả những chỗ
+        # thực chất chỉ là đoán.
+        CHAC, DOAN = "CHẮC CHẮN", "SUY ĐOÁN"
+        nhan_dinh = []          # [(do_tin_cay, van_ban), ...]
 
         # Tên quy ước OOP phổ biến (class nào cũng có __init__/run/stop...) -
         # trùng tên ở đây là chuyện thường, không phải dấu hiệu landmine.
@@ -78,13 +86,17 @@ class ThuongTri:
             o_di_vat = khoa_set & di_vat_ten
             o_chinh_chu = khoa_set & nguyen_khi_ten
             if o_di_vat and o_chinh_chu:
-                nhan_dinh.append(
+                # Việc TRÙNG TÊN là chắc chắn (đọc thẳng từ AST). Nhưng việc
+                # xếp file nào là "dị vật" lại dựa trên quy tắc đoán theo tên
+                # thư mục -> cả nhận định phải hạ xuống mức SUY ĐOÁN.
+                nhan_dinh.append((DOAN,
                     f"⚠️ '{ten}' bị định nghĩa TRÙNG TÊN ở cả code chính chủ "
                     f"({', '.join(sorted(o_chinh_chu))}) lẫn dị vật "
                     f"({', '.join(sorted(o_di_vat))}). Lỡ import nhầm file dị "
                     f"vật là mọi sửa lỗi trong bản chính chủ coi như vô nghĩa "
-                    f"mà không ai biết."
-                )
+                    f"mà không ai biết. (Việc trùng tên là chắc chắn; việc xếp "
+                    f"loại 'dị vật' chỉ là phỏng đoán theo tên/vị trí thư mục.)"
+                ))
 
         # --- B: Huyệt hiểm nằm trong file phình to - rủi ro kép ---
         for ten, so in mach["huyet_hiem"]:
@@ -92,11 +104,12 @@ class ThuongTri:
                 continue
             o_phinh = sorted({k for k in mach["noi_sinh"].get(ten, []) if k in phinh_ten})
             if o_phinh:
-                nhan_dinh.append(
+                # Số nơi gọi và số dòng đều ĐẾM ĐƯỢC từ code - không phải đoán.
+                nhan_dinh.append((CHAC,
                     f"🔴 '{ten}' vừa là huyệt hiểm ({so} nơi gọi) vừa nằm trong "
                     f"file phình to ({', '.join(o_phinh)}) - sửa sai ảnh hưởng "
                     f"nhiều nơi, mà file quá dài nên khó review kỹ."
-                )
+                ))
 
         # --- C: Khí chết dồn vào một file - có thể cả file là rác ---
         khi_chet_theo_file = {}
@@ -106,11 +119,16 @@ class ThuongTri:
         for khoa, ds in khi_chet_theo_file.items():
             tong_ham = self._dem_ham_trong_file(mach, khoa)
             if tong_ham > 0 and len(ds) >= 3 and len(ds) / tong_ham >= 0.7:
-                nhan_dinh.append(
+                # "Không ai gọi" chỉ đúng trong PHẠM VI QUÉT TĨNH. Hàm có thể
+                # được gọi động (getattr, eval), qua route web, qua CLI, hoặc
+                # từ dự án khác import sang - phân tích tĩnh không thấy được.
+                nhan_dinh.append((DOAN,
                     f"💀 File '{khoa}' có {len(ds)}/{tong_ham} hàm là khí chết "
                     f"(~{len(ds) / tong_ham:.0%}) - nhiều khả năng cả file là "
-                    f"rác còn sót, nên cân nhắc xóa hẳn thay vì dọn từng hàm."
-                )
+                    f"rác còn sót, nên cân nhắc xóa hẳn thay vì dọn từng hàm. "
+                    f"(Cẩn trọng: hàm gọi động/qua route/entry point sẽ bị "
+                    f"phân tích tĩnh tưởng nhầm là chết.)"
+                ))
 
         # --- D2: Can Tạng - file tái phát (Anthony William: vá triệu chứng
         # mãi không chạm gốc thì bệnh cứ tái đi tái lại). Chỉ đáng nói khi
@@ -128,26 +146,33 @@ class ThuongTri:
                 )
                 lien_quan_phinh = any(k.endswith(ten_file) for k in phinh_ten)
                 if lien_quan_huyet_hiem or lien_quan_phinh:
-                    nhan_dinh.append(
+                    # Số lần sửa là dữ liệu thật (đếm từ kho Nguyên Khí), nhưng
+                    # kết luận "đang vá triệu chứng" là diễn giải của con người.
+                    nhan_dinh.append((DOAN,
                         f"🫘 '{ten_file}' vừa bị sửa cấu trúc {gan} lần trong "
                         f"{cfg.KHUNG_GIO_QUA_TAI}h gần đây, VỪA là huyệt hiểm/file "
                         f"phình to - dấu hiệu đang vá triệu chứng ở một chỗ vốn đã "
-                        f"rủi ro cao, chưa chạm gốc."
-                    )
+                        f"rủi ro cao, chưa chạm gốc. (Số lần sửa là thật; cách "
+                        f"diễn giải là phỏng đoán - có thể bạn đang cố ý làm lớn "
+                        f"một tính năng ở đó.)"
+                    ))
 
         # --- D: Tỷ trọng dị vật quá cao ---
         tong = len(nguyen_khi) + len(di_vat)
         if tong > 0 and len(di_vat) / tong > 0.5:
-            nhan_dinh.append(
+            nhan_dinh.append((DOAN,
                 f"📦 Dị vật chiếm {len(di_vat)}/{tong} file "
                 f"(~{len(di_vat) / tong:.0%}) trong dự án - nên dọn rác trước "
-                f"khi làm thêm tính năng mới."
-            )
+                f"khi làm thêm tính năng mới. (Nhãn 'dị vật' dựa trên tên và vị "
+                f"trí thư mục, script tiện ích thật cũng có thể bị xếp nhầm.)"
+            ))
 
         if not nhan_dinh:
-            nhan_dinh.append("🟢 Không phát hiện tổ hợp rủi ro nào đáng báo động lúc này.")
+            nhan_dinh.append((CHAC, "🟢 Không phát hiện tổ hợp rủi ro nào đáng báo động lúc này."))
 
-        ket_luan = "\n".join(f"   {d}" for d in nhan_dinh)
+        # Xếp CHẮC CHẮN lên trước - đọc từ trên xuống là đi từ chắc tới đoán
+        nhan_dinh.sort(key=lambda x: 0 if x[0] == CHAC else 1)
+        ket_luan = "\n".join(f"   [{do:^9}] {van}" for do, van in nhan_dinh)
 
         print("\n" + "🧠 " * 5)
         print(f"🧠 [THƯỢNG TRÍ]: TỔNG HỢP NHẬN ĐỊNH - {os.path.basename(benh_nhan)}")

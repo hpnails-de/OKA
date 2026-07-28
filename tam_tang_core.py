@@ -100,21 +100,71 @@ class TamTang:
                 "",
             ] + dong
 
-        for khoa in sorted(khoa_lay):
+        # --- Gom cụm + xác định khí chết (chỉ khi lấy trọn dự án) ---
+        # Hai việc này cần mạch đồ của Thiết Chẩn. Nếu đang lọc theo từ khóa
+        # thì bỏ qua, giữ lối liệt kê phẳng cho gọn.
+        cac_cum, khi_chet = None, set()
+        if not loc:
+            try:
+                from thiet_chan_pulse import thiet_chan_trung_uong
+                import cum_chuc_nang
+                mach = thiet_chan_trung_uong._tinh_mach(benh_nhan)
+                if mach:
+                    cac_cum = cum_chuc_nang.gom_cum(mach)
+                    khi_chet = set(mach.get("khi_chet", []))
+            except Exception:
+                cac_cum, khi_chet = None, set()
+
+        def _ta_mot_file(khoa):
+            """Mô tả một file. Hàm KHÔNG AI GỌI thì không in chữ ký đầy đủ,
+            chỉ đếm gộp lại một dòng - đây là chỗ tiết kiệm token thật sự,
+            vì có dự án tới 70-100% hàm trong file là khí chết. Vẫn nhắc là
+            CÓ tồn tại, để AI không tưởng chưa có rồi viết lại từ đầu."""
             tinh_hoa = khoa_lay[khoa]
-            dong.append(f"📂 {khoa}  ({tinh_hoa.get('dong', '?')} dòng)")
+            ra = [f"📂 {khoa}  ({tinh_hoa.get('dong', '?')} dòng)"]
+            so_chet = 0
 
             for ten_cls, than in tinh_hoa.get("classes", {}).items():
                 ke_thua = than.get("ke_thua") or []
                 dau = f"({', '.join(ke_thua)})" if ke_thua else ""
-                dong.append(f"   ▸ class {ten_cls}{dau}")
+                ra.append(f"   ▸ class {ten_cls}{dau}")
                 for ten_m, ky in than.get("methods", {}).items():
-                    dong.append(f"       - {ten_m}{ky if kem_chu_ky else '()'}")
+                    if ten_m in khi_chet:
+                        so_chet += 1
+                        continue
+                    ra.append(f"       - {ten_m}{ky if kem_chu_ky else '()'}")
 
             for ten_h, ky in tinh_hoa.get("ham", {}).items():
-                dong.append(f"   ▸ def {ten_h}{ky if kem_chu_ky else '()'}")
+                if ten_h in khi_chet:
+                    so_chet += 1
+                    continue
+                ra.append(f"   ▸ def {ten_h}{ky if kem_chu_ky else '()'}")
 
+            if so_chet:
+                ra.append(f"   ▸ (+{so_chet} hàm KHÔNG ai gọi - đã lược chữ ký "
+                          f"cho gọn; gõ 'mach' để xem danh sách)")
+            ra.append("")
+            return ra
+
+        if cac_cum:
+            dong.append("Dự án được gom thành các CỤM CHỨC NĂNG dưới đây "
+                        "(file trong cùng cụm gọi nhau nhiều):")
             dong.append("")
+            da_in = set()
+            for ten_cum, ds_file in cac_cum:
+                trong_pham_vi = [f for f in ds_file if f in khoa_lay]
+                if not trong_pham_vi:
+                    continue
+                dong.append(f"┏━ CỤM: {ten_cum}  ({len(trong_pham_vi)} file)")
+                for khoa in trong_pham_vi:
+                    dong.extend(_ta_mot_file(khoa))
+                    da_in.add(khoa)
+            # File nào lọt lưới gom cụm thì vẫn phải in, không được bỏ sót
+            for khoa in sorted(set(khoa_lay) - da_in):
+                dong.extend(_ta_mot_file(khoa))
+        else:
+            for khoa in sorted(khoa_lay):
+                dong.extend(_ta_mot_file(khoa))
 
         dong.append("[NHIỆM VỤ]: Bám sát cấu trúc trên khi thực hiện yêu cầu tiếp theo.")
         return "\n".join(dong)
