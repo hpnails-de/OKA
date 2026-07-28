@@ -16,7 +16,17 @@ rút gọn):
 pip install -r requirements.txt   # tùy chọn: bản CLI không cần cũng chạy được
 ```
 
-## Cách dùng — khám một dự án
+## Cách dùng nhanh nhất — không cần gõ lệnh gì
+
+```bash
+python oka_don_gian.py
+```
+Mở ra một cửa sổ nhỏ, bấm "📂 Chọn thư mục dự án...", chọn xong OKA tự chạy
+hết mọi bước rồi xuất **đúng một file** `OKA_BAO_CAO_<tên_dự_án>.md` ngay
+trong thư mục dự án đó — dán toàn bộ file này cho AI trước khi nhờ nó sửa
+code. Không cần biết gì về Ngũ Tạng/Lục Phủ bên trong cũng dùng được.
+
+## Cách dùng qua dòng lệnh (linh hoạt hơn, cho ai quen terminal)
 
 ```bash
 # Lần đầu, hoặc muốn đổi sang khám dự án khác:
@@ -33,9 +43,9 @@ bảng đầy đủ bất cứ lúc nào):
 |---|---|
 | `nhai` | Tỳ Tạng tiêu hóa toàn bộ dự án — **luôn làm lệnh này trước tiên** |
 | `kham` | Vọng Chẩn — nhìn sắc diện: file nào chính chủ, file nào lạ, file nào phình to |
-| `mach` | Thiết Chẩn bắt mạch (huyệt hiểm, khí chết) + Can Tạng soi tái phát + Thượng Trí tự tổng hợp nhận định |
+| `mach` | Thiết Chẩn bắt mạch (huyệt hiểm, khí chết) - Thượng Trí tự tổng hợp nhận định ngay sau đó (dùng ngầm cả dữ liệu Can Tạng, không cần gõ `goc` riêng để có nhận định tổng hợp) |
 | `mach <tên hàm>` | Sửa hàm này thì hỏng những đâu? |
-| `goc` | Can Tạng — file nào đang bị vá triệu chứng, chưa chạm gốc |
+| `goc` | Can Tạng — in báo cáo CHI TIẾT file nào đang bị vá triệu chứng, chưa chạm gốc (Thượng Trí chỉ tóm tắt 1 dòng, muốn xem đầy đủ thì gõ lệnh này) |
 | `kinh [từ khóa]` | Xuất Chân Kinh — bản tóm tắt để dán cho AI trước khi nhờ nó sửa code |
 | `benhnhan` | Xem / đổi dự án đang khám |
 | `hoisinh <file>` | Phục hồi file từ bản Nguyên Khí (backup) đã lưu |
