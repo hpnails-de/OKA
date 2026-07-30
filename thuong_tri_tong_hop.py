@@ -190,6 +190,21 @@ class ThuongTri:
                 f"trí thư mục, script tiện ích thật cũng có thể bị xếp nhầm.)"
             ))
 
+        # --- H: Mùa Gặt - chấm phẩm cấp và so với mùa trước ---
+        # Từng thành phần đều ĐẾM ĐƯỢC, nhưng trọng số là lựa chọn thiết kế,
+        # nên xếp vào SUY ĐOÁN. Cái đáng tin là xu hướng, không phải con số.
+        try:
+            import mua_gat
+            so_vong = len(phan_vu_vong.soi_phan_vu(mach))
+            cap, chi_tiet = mua_gat.cham_pham_cap(mach, nguyen_khi, di_vat, so_vong)
+            mua_nay, mua_truoc = mua_gat.gat(
+                benh_nhan, cap, chi_tiet, len(mach["ky_uc"].get("files", {}))
+            )
+            for van in mua_gat.ke_lai(mua_nay, mua_truoc, mua_gat.lich_su(benh_nhan)):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+
         # --- G: Hệ Miễn Dịch - đối chiếu với trí nhớ kháng thể ---
         # Chạy SAU CÙNG, trên toàn bộ nhận định vừa rút ra, để biết cái nào
         # là mới và cái nào là kẻ cũ quay lại. Tái nhiễm luôn là CHẮC CHẮN:
