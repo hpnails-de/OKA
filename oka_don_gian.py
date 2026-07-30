@@ -91,6 +91,42 @@ def kham_benh_va_xuat_file(duong_dan_du_an, bao_trang_thai=lambda msg: None):
     except Exception as e:
         dem.write(f"\n⚠️ Không vẽ được Mandala: {e}\n")
 
+    # Ký ức xoắn ốc - nén TOÀN BỘ lịch sử hội thoại với AI về dự án này.
+    # Khác hẳn Chân Kinh (nói về CODE): cái này nói về QUÁ TRÌNH làm việc -
+    # đã bàn gì, quyết định gì, sửa gì. Dán cho phiên AI mới là nó nhớ lại
+    # được mạch việc từ đầu, thay vì bắt đầu từ con số không.
+    bao_trang_thai(t("b_ky_uc"))
+    duong_dan_ky_uc = None
+    try:
+        import xoan_oc_ky_uc
+        van_ban_ky_uc, tk_ky_uc = xoan_oc_ky_uc.dung_tu_du_an(duong_dan_du_an)
+        if van_ban_ky_uc:
+            duong_dan_ky_uc = os.path.join(
+                duong_dan_du_an, f"OKA_KY_UC_{ten_du_an}.md"
+            )
+            with open(duong_dan_ky_uc, "w", encoding="utf-8") as f:
+                f.write(
+                    f'# {t("ku_tieu_de")} — {ten_du_an}\n\n'
+                    f'{t("ku_huong_dan")}\n\n'
+                    f'- {tk_ky_uc["so_phien"]} {t("ku_phien")}, '
+                    f'{tk_ky_uc["so_su_kien"]:,} {t("xo_luot")}\n'
+                    f'- {t("ku_nen_tu")} {tk_ky_uc["ky_tu_goc"]:,} → '
+                    f'{tk_ky_uc["ky_tu_ky_uc"]:,} {t("xo_ky_tu")}\n\n'
+                    + van_ban_ky_uc
+                )
+            dem.write(
+                f"\n🌀 KÝ ỨC XOẮN ỐC: {tk_ky_uc['so_su_kien']:,} lượt hội thoại "
+                f"({tk_ky_uc['so_phien']} phiên) nén còn {tk_ky_uc['so_tang']} tầng, "
+                f"{tk_ky_uc['ky_tu_goc']:,} → {tk_ky_uc['ky_tu_ky_uc']:,} ký tự.\n"
+            )
+        else:
+            dem.write(
+                "\nℹ️ Chưa có bản ghi hội thoại nào cho dự án này "
+                "(chỉ có khi bạn dùng Claude Code trong đúng thư mục đó).\n"
+            )
+    except Exception as e:
+        dem.write(f"\n⚠️ Không dựng được ký ức xoắn ốc: {e}\n")
+
     duong_dan_bao_cao = os.path.join(
         duong_dan_du_an, f"OKA_BAO_CAO_{ten_du_an}.md"
     )
@@ -176,6 +212,7 @@ class CuaSoOKA(tk.Tk):
         self.hang_doi = queue.Queue()
         self.dang_chay = False
         self.duong_dan_bao_cao_vua_xong = None
+        self.duong_dan_ky_uc = None
         self.duong_dan_da_chon = None
 
         self._dung_thanh_tieu_de()
@@ -321,6 +358,15 @@ class CuaSoOKA(tk.Tk):
         )
         self.nut_mo_thu_muc.pack(side="left", padx=(10, 0))
 
+        # Chỉ bật khi dự án thật sự có bản ghi hội thoại
+        self.nut_mo_ky_uc = tk.Button(
+            chan, text=t("nut_mo_ky_uc"), font=("Segoe UI", 10),
+            bg=NEN_THE, fg=CHU_MO, activebackground=VIEN, relief="flat",
+            cursor="hand2", padx=14, pady=7, borderwidth=0,
+            state="disabled", command=self.mo_file_ky_uc,
+        )
+        self.nut_mo_ky_uc.pack(side="left", padx=(10, 0))
+
         self.nut_chep = tk.Button(
             chan, text=t("nut_chep"),
             font=("Segoe UI", 10, "bold"),
@@ -372,7 +418,8 @@ class CuaSoOKA(tk.Tk):
         self.duong_dan_da_chon = duong_dan
         self.nhan_duong_dan.config(text=duong_dan, fg=CHU)
         self.nut_chon.config(state="disabled", text=t("nut_dang_kham"))
-        for nut in (self.nut_mo_file, self.nut_mo_thu_muc, self.nut_chep):
+        for nut in (self.nut_mo_file, self.nut_mo_thu_muc, self.nut_chep,
+                    self.nut_mo_ky_uc):
             nut.config(state="disabled")
         self.dang_chay = True
         self._buoc_hien_tai = 0
@@ -440,6 +487,14 @@ class CuaSoOKA(tk.Tk):
 
         for nut in (self.nut_mo_file, self.nut_mo_thu_muc, self.nut_chep):
             nut.config(state="normal")
+
+        # Nút ký ức chỉ bật khi dự án có bản ghi hội thoại thật
+        thu_muc = os.path.dirname(duong_dan_bao_cao)
+        ten = os.path.basename(os.path.normpath(thu_muc))
+        ung_vien = os.path.join(thu_muc, f"OKA_KY_UC_{ten}.md")
+        if os.path.isfile(ung_vien):
+            self.duong_dan_ky_uc = ung_vien
+            self.nut_mo_ky_uc.config(state="normal")
         self._ve_tien_trinh(1.0)
 
     def _hoan_tat(self, duong_dan_bao_cao):
@@ -464,6 +519,10 @@ class CuaSoOKA(tk.Tk):
     def mo_thu_muc_bao_cao(self):
         if self.duong_dan_bao_cao_vua_xong:
             os.startfile(os.path.dirname(self.duong_dan_bao_cao_vua_xong))
+
+    def mo_file_ky_uc(self):
+        if self.duong_dan_ky_uc and os.path.isfile(self.duong_dan_ky_uc):
+            os.startfile(self.duong_dan_ky_uc)
 
     def chep_bao_cao(self):
         if not self.duong_dan_bao_cao_vua_xong:

@@ -18,6 +18,7 @@ BANG_LENH = """
    mach <tên hàm>  - Sửa hàm này thì hỏng những đâu?
    goc             - Can Tạng: soi file nào đang bị vá triệu chứng, chưa chạm gốc
    kinh [từ khóa]  - Xuất Chân Kinh cho AI (có từ khóa thì chỉ lấy phần liên quan)
+   nhoky           - Xoắn Ốc Ký Ức: nén lịch sử hội thoại để AI nhớ lại mạch việc
    benhnhan        - Xem / đổi bệnh nhân đang khám
    hoisinh <file>  - Thận Tạng phục hồi file từ bản Nguyên Khí
    don             - Đại Trường đào thải rác
@@ -77,6 +78,9 @@ class ViTang:
         elif lenh == 'kinh':
             xuong_song_trung_uong.phat_khi("YEU_CAU_CHAN_KINH", {"loc": tham_so or None})
 
+        elif lenh == 'nhoky':
+            self._xoan_oc_ky_uc()
+
         elif lenh == 'benhnhan':
             self._doi_benh_nhan(tham_so)
 
@@ -98,6 +102,33 @@ class ViTang:
 
         else:
             print(f"❓ [VỊ]: Không rõ lệnh '{lenh}'. Gõ 'lenh' để xem bảng lệnh.")
+
+    def _xoan_oc_ky_uc(self):
+        """Nén toàn bộ lịch sử hội thoại của dự án thành ký ức xoắn ốc."""
+        import os
+        try:
+            import xoan_oc_ky_uc
+        except ImportError as e:
+            print(f"❌ [VỊ]: Không nạp được module ký ức: {e}")
+            return
+
+        benh_nhan = cfg.benh_nhan_hien_tai()
+        van_ban, tk = xoan_oc_ky_uc.dung_tu_du_an(benh_nhan)
+        if not van_ban:
+            print("ℹ️ [VỊ]: Chưa có bản ghi hội thoại nào cho dự án này.")
+            print("   (Chỉ có khi bạn dùng Claude Code ngay trong thư mục đó.)")
+            return
+
+        ten = os.path.basename(os.path.normpath(benh_nhan))
+        ra = os.path.join(benh_nhan, f"OKA_KY_UC_{ten}.md")
+        with open(ra, "w", encoding="utf-8") as f:
+            f.write(van_ban)
+        giam = (1 - tk["ky_tu_ky_uc"] / max(1, tk["ky_tu_goc"])) * 100
+        print(f"\n🌀 [XOẮN ỐC KÝ ỨC]: {tk['so_su_kien']:,} lượt hội thoại "
+              f"({tk['so_phien']} phiên) nén thành {tk['so_tang']} tầng.")
+        print(f"   {tk['ky_tu_goc']:,} → {tk['ky_tu_ky_uc']:,} ký tự (giảm {giam:.1f}%)")
+        print(f"   📄 Đã lưu: {ra}")
+        print("   → Dán file này cho phiên AI MỚI để nó nhớ lại mạch việc.\n")
 
     def _doi_benh_nhan(self, duong_dan):
         if not duong_dan:

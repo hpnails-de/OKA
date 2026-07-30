@@ -201,3 +201,28 @@ BAN_DICH.update({
     "xo_nen": {"vi": "nén còn ≤", "en": "compressed to ≤"},
     "xo_ky_tu": {"vi": "ký tự", "en": "chars"},
 })
+
+BAN_DICH.update({
+    "b_ky_uc": {
+        "vi": "Đang dựng ký ức xoắn ốc từ lịch sử hội thoại…",
+        "en": "Building spiral memory from conversation history…",
+    },
+    "ku_tieu_de": {
+        "vi": "Ký ức xoắn ốc OKA",
+        "en": "OKA spiral memory",
+    },
+    "ku_huong_dan": {
+        "vi": "Dán file này cho một phiên AI MỚI để nó nhớ lại mạch việc đã làm "
+              "trên dự án — đã bàn gì, quyết định gì, sửa gì — thay vì bắt đầu "
+              "từ con số không. (Khác với file báo cáo: file kia nói về CODE, "
+              "file này nói về QUÁ TRÌNH.)",
+        "en": "Paste this into a NEW AI session so it recalls the working history "
+              "of this project — what was discussed, decided and fixed — instead "
+              "of starting from zero. (Different from the report file: that one "
+              "describes the CODE, this one describes the PROCESS.)",
+    },
+    "ku_phien": {"vi": "phiên làm việc", "en": "sessions"},
+    "ku_nen_tu": {"vi": "Nén từ", "en": "Compressed from"},
+    "o_ky_uc": {"vi": "Lượt hội thoại đã nhớ", "en": "Conversation turns recalled"},
+    "nut_mo_ky_uc": {"vi": "🌀  Mở file ký ức", "en": "🌀  Open memory file"},
+})

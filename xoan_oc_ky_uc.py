@@ -46,6 +46,9 @@
 # giữa các tầng mượt hơn - chi tiết mất dần chứ không rơi đột ngột.
 
 import re
+import os
+import json
+import glob
 
 try:
     from ngon_ngu import t
@@ -179,4 +182,101 @@ def dung_ky_uc(su_kien, han_muc_moi_tang=600, so_tang_nguyen_van=2):
     }
     van_ban = "\n".join(dong)
     thong_ke["ky_tu_ky_uc"] = len(van_ban)
+    return van_ban, thong_ke
+
+
+# ====================================================================
+# ĐỌC BẢN GHI HỘI THOẠI THẬT
+#
+# Claude Code lưu bản ghi mỗi dự án tại ~/.claude/projects/<slug>/*.jsonl
+# với slug = đường dẫn dự án, mọi ký tự không phải chữ/số đổi thành '-'.
+#   E:\backup4.2026\OKA_System   ->  E--backup4-2026-OKA-System
+#   C:\Projects_tool\TOOL_X      ->  C--Projects-tool-TOOL-X
+# ====================================================================
+
+def _slug_du_an(duong_dan_du_an):
+    return re.sub(r"[^A-Za-z0-9]", "-", os.path.abspath(duong_dan_du_an))
+
+
+def tim_ban_ghi(duong_dan_du_an):
+    """Tìm các file .jsonl bản ghi hội thoại của một dự án.
+
+    Trả về list đường dẫn, mới nhất trước. Rỗng nếu chưa có phiên nào.
+    """
+    goc = os.path.join(os.path.expanduser("~"), ".claude", "projects")
+    thu_muc = os.path.join(goc, _slug_du_an(duong_dan_du_an))
+    if not os.path.isdir(thu_muc):
+        return []
+    tep = glob.glob(os.path.join(thu_muc, "*.jsonl"))
+    return sorted(tep, key=os.path.getmtime, reverse=True)
+
+
+def _lay_chu(noi_dung):
+    """Rút phần chữ từ trường content (str, hoặc list các khối)."""
+    if isinstance(noi_dung, str):
+        return noi_dung
+    if isinstance(noi_dung, list):
+        manh = []
+        for b in noi_dung:
+            if isinstance(b, str):
+                manh.append(b)
+            elif isinstance(b, dict):
+                if b.get("type") == "text":
+                    manh.append(b.get("text", ""))
+                elif b.get("type") == "tool_use":
+                    manh.append(f"[dùng công cụ {b.get('name', '?')}]")
+                elif b.get("type") == "tool_result":
+                    manh.append("[kết quả công cụ]")
+        return " ".join(manh)
+    return ""
+
+
+def doc_su_kien(duong_dan_jsonl):
+    """Đọc một file bản ghi -> list sự kiện theo thứ tự thời gian."""
+    su_kien = []
+    try:
+        f = open(duong_dan_jsonl, encoding="utf-8", errors="replace")
+    except OSError:
+        return su_kien
+    with f:
+        for dong in f:
+            try:
+                d = json.loads(dong)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if d.get("type") not in ("user", "assistant"):
+                continue
+            msg = d.get("message") or {}
+            chu = _lay_chu(msg.get("content", d.get("content", ""))).strip()
+            if chu:
+                su_kien.append({"vai": d["type"], "noi_dung": chu})
+    return su_kien
+
+
+def dung_tu_du_an(duong_dan_du_an, han_muc_moi_tang=700,
+                  so_tang_nguyen_van=2, gop_moi_phien=True):
+    """Dựng ký ức xoắn ốc từ bản ghi hội thoại THẬT của một dự án.
+
+    gop_moi_phien=True thì gộp tất cả các phiên lại theo thời gian, để
+    nhớ được cả những phiên trước chứ không riêng phiên gần nhất.
+
+    Trả về (van_ban, thong_ke) - van_ban rỗng nếu không tìm thấy bản ghi.
+    """
+    cac_tep = tim_ban_ghi(duong_dan_du_an)
+    if not cac_tep:
+        return "", {"so_tang": 0, "so_su_kien": 0, "so_phien": 0}
+
+    if not gop_moi_phien:
+        cac_tep = cac_tep[:1]
+
+    su_kien = []
+    # Đọc từ phiên CŨ nhất trước để dòng thời gian đúng chiều
+    for tep in reversed(cac_tep):
+        su_kien.extend(doc_su_kien(tep))
+
+    van_ban, thong_ke = dung_ky_uc(
+        su_kien, han_muc_moi_tang=han_muc_moi_tang,
+        so_tang_nguyen_van=so_tang_nguyen_van,
+    )
+    thong_ke["so_phien"] = len(cac_tep)
     return van_ban, thong_ke
