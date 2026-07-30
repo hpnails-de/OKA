@@ -21,6 +21,8 @@ from nham_mach_store import nham_mach_trung_uong
 from thiet_chan_pulse import thiet_chan_trung_uong
 from vong_chan_diagnostic import vong_chan_trung_uong
 from can_tang_goc import can_tang_trung_uong
+import phan_vu_vong
+import ty_ngo_luu_chu
 
 
 class ThuongTri:
@@ -129,6 +131,26 @@ class ThuongTri:
                     f"(Cẩn trọng: hàm gọi động/qua route/entry point sẽ bị "
                     f"phân tích tĩnh tưởng nhầm là chết.)"
                 ))
+
+        # --- E: Phản Vũ - vòng phụ thuộc luẩn quẩn ---
+        # CHẮC CHẮN: dựng từ câu lệnh import thật, không suy diễn.
+        canh_phu_thuoc = {}
+        try:
+            canh_phu_thuoc = phan_vu_vong.dung_do_thi_co_huong(mach)
+            for van in phan_vu_vong.ke_lai(phan_vu_vong.soi_phan_vu(mach)):
+                nhan_dinh.append((CHAC, van))
+        except Exception:
+            pass
+
+        # --- F: Tý Ngọ Lưu Chú - liên kết ẩn theo thời gian ---
+        # SUY ĐOÁN: suy luận thống kê từ lịch sử sửa, không phải bằng chứng.
+        try:
+            for van in ty_ngo_luu_chu.ke_lai(
+                ty_ngo_luu_chu.soi_lien_ket_an(benh_nhan, mach, canh_phu_thuoc)
+            ):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
 
         # --- D2: Can Tạng - file tái phát (Anthony William: vá triệu chứng
         # mãi không chạm gốc thì bệnh cứ tái đi tái lại). Chỉ đáng nói khi

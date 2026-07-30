@@ -20,7 +20,7 @@ from doc_mach_bus import xuong_song_trung_uong
 
 # Tăng số này mỗi khi Tỳ Tạng học được cách rút thêm tinh hoa mới,
 # để ký ức cũ tự lỗi thời và được nhai lại.
-PHIEN_BAN_TINH_HOA = 3   # +1: thêm nhánh JS/TS (regex)
+PHIEN_BAN_TINH_HOA = 4   # +1: giu duong dan module day du de do vong phu thuoc
 
 # ====================================================================
 # NHÁNH JS/TS/JSX/TSX - regex nhẹ, KHÔNG phải AST thật.
@@ -100,16 +100,13 @@ def _boc_tach_js(noi_dung):
             "methods": methods,
         }
 
+    # Giữ CẢ import nội bộ (./foo) - trước đây bỏ qua vì chỉ quan tâm thư
+    # viện ngoài, nhưng chính import nội bộ mới là quan hệ phụ thuộc THẬT
+    # giữa các file, thứ cần để dò vòng luẩn quẩn.
     imports = set()
-    for m in _RE_JS_IMPORT.finditer(noi_dung):
+    for m in list(_RE_JS_IMPORT.finditer(noi_dung)) + list(_RE_JS_REQUIRE.finditer(noi_dung)):
         goc = m.group(1)
-        if goc.startswith('.'):
-            continue  # import nội bộ dự án (./foo) - chỉ giữ thư viện ngoài
-        imports.add(goc.split('/')[0])
-    for m in _RE_JS_REQUIRE.finditer(noi_dung):
-        goc = m.group(1)
-        if not goc.startswith('.'):
-            imports.add(goc.split('/')[0])
+        imports.add(goc if goc.startswith('.') else goc.split('/')[0])
 
     goi = {m.group(1) for m in _RE_JS_CALL.finditer(noi_dung)} - _JS_TU_KHOA
 
@@ -244,12 +241,16 @@ class TyTang:
                 da_tham_chieu.add(node.attr)
             elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
                 da_tham_chieu.add(node.id)
+            # Giữ ĐƯỜNG DẪN MODULE ĐẦY ĐỦ ('engine.rpc' chứ không cắt còn
+            # 'engine'). Cắt cụt thì không thể lần ra file cụ thể nào đang
+            # bị phụ thuộc - mà đó chính là thứ cần để dò vòng luẩn quẩn.
             elif isinstance(node, ast.Import):
                 for a in node.names:
-                    da_import.add(a.name.split('.')[0])
+                    da_import.add(a.name)
             elif isinstance(node, ast.ImportFrom):
                 if node.module:
-                    da_import.add(node.module.split('.')[0])
+                    # level>0 là import tương đối (from .foo import x)
+                    da_import.add("." * node.level + node.module)
 
         tinh_hoa["goi"] = sorted(da_goi)
         tinh_hoa["tham_chieu"] = sorted(da_tham_chieu - da_goi)
