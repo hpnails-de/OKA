@@ -187,3 +187,17 @@ def t(khoa):
     if not muc:
         return khoa
     return muc.get(_hien_tai) or muc.get(MAC_DINH) or khoa
+
+
+# --- Bổ sung cho Xoắn Ốc Ký Ức ---
+BAN_DICH.update({
+    "xo_tieu_de": {
+        "vi": "KÝ ỨC XOẮN ỐC (xa → gần, càng gần càng chi tiết)",
+        "en": "SPIRAL MEMORY (far → near, detail increases toward the present)",
+    },
+    "xo_tang": {"vi": "Tầng", "en": "Tier"},
+    "xo_luot": {"vi": "lượt", "en": "turns"},
+    "xo_nguyen_van": {"vi": "nguyên văn", "en": "verbatim"},
+    "xo_nen": {"vi": "nén còn ≤", "en": "compressed to ≤"},
+    "xo_ky_tu": {"vi": "ký tự", "en": "chars"},
+})
