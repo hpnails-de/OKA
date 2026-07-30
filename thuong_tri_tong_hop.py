@@ -23,6 +23,7 @@ from vong_chan_diagnostic import vong_chan_trung_uong
 from can_tang_goc import can_tang_trung_uong
 import phan_vu_vong
 import ty_ngo_luu_chu
+import mien_dich
 
 
 class ThuongTri:
@@ -188,6 +189,18 @@ class ThuongTri:
                 f"khi làm thêm tính năng mới. (Nhãn 'dị vật' dựa trên tên và vị "
                 f"trí thư mục, script tiện ích thật cũng có thể bị xếp nhầm.)"
             ))
+
+        # --- G: Hệ Miễn Dịch - đối chiếu với trí nhớ kháng thể ---
+        # Chạy SAU CÙNG, trên toàn bộ nhận định vừa rút ra, để biết cái nào
+        # là mới và cái nào là kẻ cũ quay lại. Tái nhiễm luôn là CHẮC CHẮN:
+        # đây là so khớp với chính hồ sơ đã ghi, không phải suy đoán.
+        try:
+            for van in mien_dich.ghi_nhan(benh_nhan, nhan_dinh):
+                nhan_dinh.append((CHAC, van))
+            for van in mien_dich.ke_lai_thong_ke(benh_nhan):
+                nhan_dinh.append((CHAC, van))
+        except Exception:
+            pass
 
         if not nhan_dinh:
             nhan_dinh.append((CHAC, "🟢 Không phát hiện tổ hợp rủi ro nào đáng báo động lúc này."))

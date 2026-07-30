@@ -1,10 +1,20 @@
 # OKA_System — Thầy Thuốc cho code do AI viết
+### *The Physician for AI-written code*
+
+> 🇻🇳 Tiếng Việt bên dưới · 🇬🇧 **[English section below](#-english)**
 
 OKA không phải tool tự viết code. Nó là **công cụ chẩn đoán** gắn vào một dự án
 khác (thường là dự án bạn để AI viết giúp) — đọc cấu trúc, tìm chỗ rủi ro,
 soi dấu hiệu vá triệu chứng mà chưa chạm gốc, rồi xuất một bản tóm tắt cực
 nhẹ ("Chân Kinh") để dán cho AI trước khi nhờ nó sửa tiếp, giúp AI không bịa
 ra hàm không tồn tại hay phá vỡ chỗ khác khi sửa.
+
+**Kiến trúc mượn nguyên khung Đông Y** (Ngũ Tạng, Lục Phủ, Tứ Chẩn) — không
+phải để cho vui, mà vì cơ thể người là hệ thống quản lý thông tin đã được
+thử thách hàng triệu năm: nhai thức ăn thành tinh chất rồi bỏ xác thô, nhớ
+mầm bệnh cũ để lần sau nhận ra ngay, có tạng chuyên đào thải cái vô dụng.
+
+**Giao diện có tiếng Việt và tiếng Anh** — bấm nút VI/EN ở góc phải.
 
 ## Cài đặt
 
@@ -164,3 +174,115 @@ Bạn chỉ việc lấy cái file JSON bé xíu đó ném cho AI. Bộ nhớ c�
 Vì bạn là người kiểm tra file JSON tóm tắt đó, bạn luôn nắm được sơ đồ dự án trong đầu, không bao giờ bị AI dắt mũi. (Giải quyết lỗi 1 - Teo não).
 
 Nếu AI gọi một hàm không hề có trong file JSON, hệ thống sẽ biết ngay nó đang "phê cần" và chặn lại. (Giải quyết lỗi 2 - Ảo giác).
+
+---
+
+## 🇬🇧 English
+
+**OKA is a diagnostic tool, not a code generator.** You point it at a project
+(typically one you built with an AI assistant) and it reads the structure,
+finds risky spots, detects symptom-patching that never reached the root cause,
+then exports one lightweight digest you paste into your AI *before* asking it
+to change anything. The AI stops inventing functions that don't exist and stops
+breaking one thing while fixing another.
+
+Measured on real projects: **~96–97% fewer tokens** than pasting the source
+(counted with `tiktoken`, not estimated).
+
+### Why the Traditional-Medicine architecture?
+
+Every module is named after an organ from Vietnamese/Chinese traditional
+medicine. This is not decoration. The human body is an information-management
+system refined over millions of years, and several of its strategies map
+directly onto hard problems in tooling:
+
+| Organ / concept | What it does in OKA |
+|---|---|
+| **Tỳ Tạng** (spleen — transforms food into essence) | Digests source files into a lightweight skeleton, discards the bulk |
+| **Thận Tạng** (kidney — stores vital essence) | Versioned backups, restore on demand |
+| **Vọng Chẩn** (visual inspection) | Surface exam: file sizes, foreign files, bloat |
+| **Thiết Chẩn** (pulse reading) | Call-graph analysis: critical points, dead code |
+| **Can Tạng** (liver — root of chronic illness) | Flags files patched over and over without fixing the root |
+| **Phản Vũ** (rebellious counter-restraint) | Circular-dependency detection (Tarjan SCC) |
+| **Tý Ngọ Lưu Chú** (organ-clock qi flow) | **Hidden coupling**: files that always change together but have *no* import linking them — invisible to pure static analysis |
+| **Miễn Dịch** (adaptive immunity) | **Regression memory**: remembers every problem ever found; if a fixed problem returns, it raises a *reinfection* alert |
+| **Thượng Trí** (higher mind) | Synthesises all of the above into plain-language findings |
+
+The last three have no equivalent in typical static analysers, and they came
+directly from thinking in body metaphors rather than in "code linter" terms.
+
+### Install
+
+Python 3.9+ and the standard library. **Nothing else is required.**
+Every third-party library is optional with a graceful fallback:
+
+```bash
+pip install -r requirements.txt   # optional
+```
+
+- missing `watchdog` → falls back to polling every 3s
+- missing `customtkinter` → use the plain-tkinter GUI (always available)
+- missing `tiktoken` → falls back to a ~4-chars-per-token estimate
+
+### Quick start (no commands to memorise)
+
+```bash
+python oka_don_gian.py
+```
+
+A window opens. Click **Choose folder…**, pick your project, and OKA runs the
+whole examination, then writes:
+
+- `OKA_BAO_CAO_<project>.md` — the report to paste into your AI
+- `OKA_MANDALA_<project>.svg` — a diagram of functional clusters (open in a browser)
+
+Use the **VI / EN** buttons in the top-right to switch language.
+
+### Command-line usage
+
+```bash
+python main_kosmon.py "/path/to/your/project"   # first time, or to switch project
+python main_kosmon.py                            # re-examine the last project
+```
+
+| Command | What it does |
+|---|---|
+| `nhai` | Digest the whole project — **always run this first** |
+| `kham` | Visual exam: owned code vs foreign files, bloated files |
+| `mach` | Pulse: critical functions, dead code, cycles, synthesis |
+| `mach <name>` | If I change this function, what breaks? |
+| `goc` | Which files are being patched repeatedly without a real fix |
+| `kinh [keyword]` | Export the digest for your AI |
+| `benhnhan` | Show / switch the project being examined |
+| `hoisinh <file>` | Restore a file from backup |
+| `don` | Clean temp/cache garbage |
+| `thoat` | Quit |
+
+### Confidence labels — read these
+
+Every finding is tagged:
+
+- **CERTAIN** — counted straight from the code (call counts, line counts,
+  import cycles). Not arguable.
+- **INFERRED** — heuristics that *can be wrong*, and the report says why.
+  Example: "dead code" cannot see functions called dynamically, via web
+  routes, or as entry points.
+
+Tools that present every finding with equal confidence train you to distrust
+all of them. This one tells you which is which.
+
+### Honest limitations
+
+- The digest gives **structure, not logic**. It stops the AI hallucinating
+  names and shows where the risk is; it does not describe what a function
+  actually does inside.
+- JS/TS parsing uses **lightweight regex**, not a real AST (that would require
+  installing tree-sitter, breaking the zero-install rule). Python uses the real
+  `ast` module.
+- **Tý Ngọ Lưu Chú** (hidden coupling) needs accumulated real editing history
+  before it produces anything. On a fresh install it correctly reports nothing.
+- Supported languages: Python, JavaScript, TypeScript, JSX, TSX.
+
+### License
+
+MIT — see `LICENSE`.
