@@ -211,29 +211,57 @@ def tim_ban_ghi(duong_dan_du_an):
     return sorted(tep, key=os.path.getmtime, reverse=True)
 
 
-def _lay_chu(noi_dung):
-    """Rút phần chữ từ trường content (str, hoặc list các khối)."""
+def _tach_chu_va_cong_cu(noi_dung):
+    """Tách CHỮ THẬT (text) ra khỏi TÊN CÔNG CỤ đã gọi trong một message.
+
+    Trả về (chu_that, [ten_cong_cu, ...]). Không còn nhét placeholder kiểu
+    "[dùng công cụ Bash]"/"[kết quả công cụ]" thẳng vào chữ thật nữa - xem
+    lý do ở doc_su_kien() bên dưới."""
     if isinstance(noi_dung, str):
-        return noi_dung
+        return noi_dung, []
     if isinstance(noi_dung, list):
-        manh = []
+        chu, cong_cu = [], []
         for b in noi_dung:
             if isinstance(b, str):
-                manh.append(b)
+                chu.append(b)
             elif isinstance(b, dict):
                 if b.get("type") == "text":
-                    manh.append(b.get("text", ""))
+                    chu.append(b.get("text", ""))
                 elif b.get("type") == "tool_use":
-                    manh.append(f"[dùng công cụ {b.get('name', '?')}]")
-                elif b.get("type") == "tool_result":
-                    manh.append("[kết quả công cụ]")
-        return " ".join(manh)
-    return ""
+                    cong_cu.append(b.get("name", "?"))
+                # tool_result: bỏ hẳn, không giữ placeholder - kết quả thô
+                # (log lệnh, nội dung file...) không đáng giữ trong ký ức
+                # hội thoại, và trước đây bị thay bằng "[kết quả công cụ]"
+                # lặp lại vô nghĩa ở mọi lượt.
+        return " ".join(chu), cong_cu
+    return "", []
 
 
 def doc_su_kien(duong_dan_jsonl):
-    """Đọc một file bản ghi -> list sự kiện theo thứ tự thời gian."""
+    """Đọc một file bản ghi -> list sự kiện theo thứ tự thời gian.
+
+    SỬA: bản đầu coi MỖI lượt gọi công cụ (Bash/Edit/Read...) là một "lượt"
+    riêng, in ra placeholder "[dùng công cụ Bash] [kết quả công cụ]". Đo
+    trên chính bản ghi thật của dự án này: các tầng xa của Xoắn Ốc Ký Ức
+    đầy rẫy cụm này lặp lại hàng chục lần, ăn hết ngân sách ký tự ít ỏi của
+    tầng đó mà không mang thông tin gì (tự phát hiện khi đọc lại kết quả
+    xuất ra, không phải đoán).
+
+    Cách sửa: lượt CHỈ có tool_use/tool_result (không có chữ thật nào)
+    KHÔNG tạo thành một "lượt" riêng. Tên công cụ được gộp đếm rồi gắn làm
+    tiền tố ngắn gọn ("(đã dùng Bash×3, Edit×1)") vào NGAY TRƯỚC lượt có
+    chữ thật kế tiếp - giữ được THÔNG TIN (đã làm gì) mà không giữ RÁC.
+    """
     su_kien = []
+    dem_cong_cu = {}
+
+    def _rut_gon_dem():
+        if not dem_cong_cu:
+            return ""
+        phan = ", ".join(f"{ten}×{so}" for ten, so in dem_cong_cu.items())
+        dem_cong_cu.clear()
+        return f"(đã dùng {phan}) "
+
     try:
         f = open(duong_dan_jsonl, encoding="utf-8", errors="replace")
     except OSError:
@@ -247,9 +275,20 @@ def doc_su_kien(duong_dan_jsonl):
             if d.get("type") not in ("user", "assistant"):
                 continue
             msg = d.get("message") or {}
-            chu = _lay_chu(msg.get("content", d.get("content", ""))).strip()
-            if chu:
-                su_kien.append({"vai": d["type"], "noi_dung": chu})
+            chu_that, ten_cong_cu = _tach_chu_va_cong_cu(
+                msg.get("content", d.get("content", ""))
+            )
+            chu_that = chu_that.strip()
+
+            if chu_that:
+                tien_to = _rut_gon_dem()
+                su_kien.append({"vai": d["type"], "noi_dung": f"{tien_to}{chu_that}"})
+
+            # Cộng dồn SAU khi đã dùng tiền tố của các lượt TRƯỚC - lượt
+            # hiện tại (nếu vừa có chữ vừa gọi công cụ) chỉ tính vào tiền
+            # tố của lượt kế tiếp, không tự gắn vào chính nó.
+            for ten in ten_cong_cu:
+                dem_cong_cu[ten] = dem_cong_cu.get(ten, 0) + 1
     return su_kien
 
 
