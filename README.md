@@ -194,6 +194,40 @@ Khỏi) và Vệ Khí ra đời từ khảo sát developer thật năm 2026 (40%
 tăng nợ kỹ thuật vì code trùng lặp; ~1/4 code AI sinh ra có lỗ hổng bảo mật
 đã biết) — không phải suy đoán chủ quan.
 
+## 🫀 Ngũ Tạng & Lục Phủ hoạt động ra sao — và vì sao dân code nên tò mò về cơ thể mình
+
+Đông Y chia nội tạng làm hai nhóm, vận hành theo cặp Âm-Dương:
+
+- **Ngũ Tạng (Âm — tàng trữ)**: Tâm, Can, Tỳ, Phế, Thận. Việc của Tạng là
+  GIỮ — giữ Thần (Tâm), giữ Huyết (Can), giữ tinh chất rút từ thức ăn (Tỳ),
+  giữ khí (Phế), giữ Tinh — gốc sự sống (Thận). Tạng không đẩy ra ngoài,
+  chỉ tích trữ và bảo vệ.
+- **Lục Phủ (Dương — vận hành)**: Vị, Đởm, Tiểu Trường, Đại Trường, Bàng
+  Quang, Tam Tiêu. Việc của Phủ là CHUYỂN — nhận vào, xử lý, đẩy đi hoặc
+  thải ra. Phủ không giữ lại gì lâu.
+
+Mỗi Tạng luôn đi kèm một Phủ tương ứng (quan hệ "biểu lý"): Tỳ-Vị cùng lo
+tiêu hóa (Tỳ giữ tinh chất, Vị xử lý phần thô); Can-Đởm cùng lo quyết đoán
+(Can lập mưu, Đởm quyết định làm hay không); Thận-Bàng Quang cùng lo
+lọc-thải. Toàn bộ được nối với nhau qua Kinh Lạc — một mạng tín hiệu chạy
+khắp cơ thể, không dây cáp vật lý nào cả, nhưng khí huyết vẫn luân chuyển
+đúng nhịp, đúng giờ (xem Tý Ngọ Lưu Chú: khí huyết đổi phiên qua từng tạng
+phủ theo giờ trong ngày — một dạng lịch trình phân tán đã chạy ổn định
+hàng nghìn năm trước khi loài người biết đến từ "cron job").
+
+Đây là lý do OKA mượn khung này làm kiến trúc: hàng nghìn năm quan sát một
+hệ thống THẬT (cơ thể người) đã tự vận hành trơn tru, tự sửa lỗi, tự đào
+thải rác, tự cân bằng — không ai "code" ra nó, chỉ có người đủ kiên nhẫn
+quan sát để mô tả lại nguyên lý.
+
+Và đây là phần nói đùa mà cũng nghiêm túc một nửa: nếu một ngày con người
+thật sự làm ra được một cỗ máy biết tự chữa lành, tự nhớ, tự đào thải,
+tự cân bằng như cơ thể — biết đâu công thức đó không nằm trong một cuốn
+giáo trình Khoa học Máy tính nào cả, mà nằm ngay trong chính cái cơ thể
+bạn đang ngồi lì cả ngày trước màn hình để viết code cho nó. Gấp máy tính
+lại một buổi, đọc thử một cuốn giải phẫu — biết đâu bạn tìm ra thứ mà cả
+ngành AI đang đi đường vòng để tới.
+
 ## Nhãn độ tin cậy — đọc phần này trước khi tin bất kỳ nhận định nào
 
 Mọi nhận định trong báo cáo đều gắn nhãn:
@@ -321,6 +355,46 @@ Khỏi) came directly from real 2026 developer-survey data — 40% of developers
 report AI increases technical debt through duplicate/unnecessary code, and
 roughly a quarter of AI-generated code contains a known security
 vulnerability — not personal speculation.
+
+### 🫀 How the organs actually work — and why coders might enjoy learning about their own body
+
+Traditional Chinese/Vietnamese medicine splits internal organs into two
+groups, working as Yin-Yang pairs:
+
+- **Ngũ Tạng — the five "Yin" organs (storage)**: heart, liver, spleen,
+  lungs, kidneys. Their job is to HOLD — the heart holds spirit/awareness,
+  the liver holds blood, the spleen holds the essence extracted from food,
+  the lungs hold qi, the kidneys hold the root of vitality. Storage organs
+  don't discharge outward; they accumulate and protect.
+- **Lục Phủ — the six "Yang" organs (processing)**: stomach, gallbladder,
+  small intestine, large intestine, bladder, "triple burner" (a
+  circulation/fluid concept with no single Western anatomical equivalent).
+  Their job is to MOVE — take in, process, pass along or excrete. Nothing
+  stays long in a processing organ.
+
+Each storage organ is paired with a processing organ (an "exterior-interior"
+relationship): spleen-stomach both handle digestion (spleen keeps the
+essence, stomach handles the raw material); liver-gallbladder both handle
+decisiveness (liver plans, gallbladder decides whether to act). Everything
+connects through the meridians — a signal network running through the whole
+body with no physical wiring, yet qi and blood still flow on schedule (see
+Tý Ngọ Lưu Chú: qi/blood cycling through each organ on an hourly rota — a
+distributed schedule that's been running stably for millennia, well before
+humans invented the cron job).
+
+This is why OKA borrowed this framework as its architecture: thousands of
+years spent observing one REAL system (the human body) that runs itself
+smoothly, self-repairs, clears its own waste, and self-balances — nobody
+"coded" it; someone just watched patiently enough to describe the
+principles.
+
+And here's the half-joking, half-serious part: if humans ever build a
+machine that truly self-heals, self-remembers, self-clears waste, and
+self-balances the way a body does — the blueprint for that might not be
+sitting in a Computer Science textbook at all. It might be sitting in the
+exact body you've been parked in front of a screen all day writing code
+for. Close the laptop for an afternoon, pick up an anatomy book — you might
+find what the whole AI industry is taking the long way around to reach.
 
 ### Install
 
