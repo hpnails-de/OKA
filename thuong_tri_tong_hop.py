@@ -28,6 +28,7 @@ import ve_khi_bao_ve
 import trung_anh
 import vo_rong
 import gia_khoi
+import am_duong_can_bang
 
 
 class ThuongTri:
@@ -236,6 +237,16 @@ class ThuongTri:
             pass
         try:
             for van in gia_khoi.ke_lai(gia_khoi.quet(benh_nhan)):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+
+        # --- K: Cân Bằng Âm Dương - lời gọi hàm không có định nghĩa tương
+        # ứng (đánh thẳng vào "Ảo giác Hệ thống" của Tam Độc gốc). SUY
+        # ĐOÁN: phạm vi cố ý thu hẹp (chỉ tên trần + self.method() lớp
+        # không kế thừa) để giảm báo giả, nhưng tên tạo động vẫn có thể lọt.
+        try:
+            for van in am_duong_can_bang.ke_lai(am_duong_can_bang.quet(benh_nhan)):
                 nhan_dinh.append((DOAN, van))
         except Exception:
             pass

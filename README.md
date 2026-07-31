@@ -109,6 +109,7 @@ bảng đầy đủ bất cứ lúc nào):
 | `goc` | Can Tạng — file nào đang bị vá triệu chứng, chưa chạm gốc |
 | `baomat` | Vệ Khí — soi dấu hiệu bảo mật (secret viết cứng, eval, SQL nối chuỗi, TLS tắt xác thực...) |
 | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi — soi trùng lặp code, lớp bọc thừa, test bị làm yếu |
+| `canbang` | Cân Bằng Âm Dương — lời gọi hàm không có định nghĩa tương ứng |
 | `nhoky` | Xoắn Ốc Ký Ức — nén lịch sử hội thoại đã có với AI về dự án này |
 | `kinh [từ khóa]` | Xuất Chân Kinh — bản tóm tắt để dán cho AI trước khi nhờ nó sửa code |
 | `benhnhan` | Xem / đổi dự án đang khám |
@@ -157,6 +158,7 @@ MCP hiện có), sửa đường dẫn `args` thành đường dẫn tuyệt đ�
 | `oka_security_scan` | `baomat` | Vệ Khí — dấu hiệu bảo mật |
 | `oka_root_cause` | `goc` | Can Tạng — file nào bị vá triệu chứng lặp lại |
 | `oka_quality_scan` | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi |
+| `oka_balance_check` | `canbang` | Cân Bằng Âm Dương — lời gọi hàm không có định nghĩa |
 | `oka_chat_memory` | `nhoky` | Xoắn Ốc Ký Ức — nén lại lịch sử hội thoại đã có với AI về dự án này |
 
 `oka_chat_memory` chỉ đọc được bản ghi của **Claude Code/Claude** (file
@@ -181,6 +183,7 @@ viết:
 | **Trùng Ảnh** (bóng trùng) | `trung_anh.py` | Hàm có cấu trúc logic giống hệt nhau bị copy-paste ở nhiều file |
 | **Vỏ Rỗng** (lớp bọc rỗng) | `vo_rong.py` | File có nhiều hàm chỉ gọi lại hàm khác, không thêm logic — dấu hiệu thừa tầng |
 | **Giả Khỏi** (giả vờ đã khỏi) | `gia_khoi.py` | Bài test bị làm yếu (giảm assertion) thay vì sửa lỗi thật |
+| **Cân Bằng Âm Dương** | `am_duong_can_bang.py` | Lời gọi hàm (Dương) không có định nghĩa tương ứng (Âm) — AI gọi hàm/phương thức không tồn tại |
 | **Miễn Dịch** (trí nhớ miễn dịch) | `mien_dich.py` | Nhớ lại vấn đề cũ; báo "tái nhiễm" nếu nó quay lại |
 | **Mùa Gặt** (chấm phẩm cấp) | `mua_gat.py` | Điểm sức khỏe 0-99 mỗi lần khám, so với lần trước |
 | **Xoắn Ốc Ký Ức** (ký ức Fibonacci) | `xoan_oc_ky_uc.py` | Nén lịch sử hội thoại AI theo tầng, để phiên AI mới đọc lại được mạch việc |
@@ -213,8 +216,12 @@ riêng hai loại này.
 - JS/TS dùng **regex nhẹ**, không phải AST thật (AST thật cần cài
   tree-sitter, phá nguyên tắc không-cài-đặt). Python dùng module `ast`
   thật của chính Python.
-- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi đều dựa trên mẫu/số đếm — KHÔNG phân
-  tích luồng dữ liệu thật, KHÔNG chạy test thật. Luôn có thể báo giả.
+- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi/Cân Bằng Âm Dương đều dựa trên mẫu/số
+  đếm — KHÔNG phân tích luồng dữ liệu thật, KHÔNG chạy test thật. Luôn có
+  thể báo giả.
+- **Cân Bằng Âm Dương** cố ý CHỈ xét lời gọi tên trần và `self.method()`
+  trong lớp không kế thừa — bỏ qua `module.foo()`/`obj.foo()` vì cần suy
+  luận kiểu dữ liệu mới xác minh đúng được. Thà bỏ sót còn hơn báo sai.
 - **Tý Ngọ Lưu Chú** và **Giả Khỏi** cần lịch sử sửa đổi thật tích lũy dần
   mới có gì để báo — cài mới thì đúng là báo trống, không phải lỗi.
 - Ngôn ngữ hỗ trợ: Python, JavaScript, TypeScript, JSX, TSX.
@@ -303,6 +310,7 @@ directly onto hard problems in tooling:
 | **Trùng Ảnh** ("duplicate shadow") | `trung_anh.py` | Functions with identical logic structure copy-pasted across files |
 | **Vỏ Rỗng** ("empty shell") | `vo_rong.py` | Files with several functions that only forward to another function — unnecessary abstraction |
 | **Giả Khỏi** ("faked recovery") | `gia_khoi.py` | Test assertions thinned over time instead of the bug being fixed |
+| **Cân Bằng Âm Dương** (Yin-Yang balance) | `am_duong_can_bang.py` | A function call (Yang) with no matching definition (Yin) anywhere — AI calling something that doesn't exist |
 | **Miễn Dịch** (adaptive immunity) | `mien_dich.py` | Regression memory: a fixed problem reappearing raises a *reinfection* alert |
 | **Mùa Gặt** (harvest) | `mua_gat.py` | 0–99 health grade each scan, trend vs the previous one |
 | **Xoắn Ốc Ký Ức** (Fibonacci memory spiral) | `xoan_oc_ky_uc.py` | Compresses your AI conversation history so a new session can pick up where you left off |
@@ -357,6 +365,7 @@ python main_kosmon.py                            # re-examine the last project
 | `goc` | Which files are being patched repeatedly without a real fix |
 | `baomat` | Security-smell scan: hardcoded secrets, eval, string-built SQL, disabled TLS verification... |
 | `chatluong` | Duplicate logic across files, unnecessary wrapper concentration, tests weakened over time |
+| `canbang` | Function calls with no matching definition anywhere (Yin-Yang balance) |
 | `nhoky` | Compress the conversation history you've had with your AI about this project |
 | `kinh [keyword]` | Export the digest for your AI |
 | `benhnhan` | Show / switch the project being examined |
@@ -405,6 +414,7 @@ your existing MCP config), and change `args` to the real absolute path to
 | `oka_security_scan` | `baomat` | Vệ Khí — security-smell scan |
 | `oka_root_cause` | `goc` | Can Tạng — files being patched repeatedly without a real fix |
 | `oka_quality_scan` | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi |
+| `oka_balance_check` | `canbang` | Yin-Yang balance — function calls with no matching definition |
 | `oka_chat_memory` | `nhoky` | Compress the conversation history you've had with your AI about this project |
 
 `oka_chat_memory` only reads **Claude Code/Claude** transcripts (the `.jsonl`
@@ -432,9 +442,13 @@ all of them. This one tells you which is which.
 - JS/TS parsing uses **lightweight regex**, not a real AST (that would require
   installing tree-sitter, breaking the zero-install rule). Python uses the real
   `ast` module.
-- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi are pattern/count-based — they do **not**
-  analyze real data flow and do **not** run your actual test suite. False
-  positives are always possible.
+- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi/Cân Bằng Âm Dương are pattern/count-based
+  — they do **not** analyze real data flow and do **not** run your actual
+  test suite. False positives are always possible.
+- **Cân Bằng Âm Dương** deliberately only checks bare-name calls and
+  `self.method()` inside non-inheriting classes — it skips `module.foo()`/
+  `obj.foo()` since verifying those needs real type inference. Under-flagging
+  is the safe direction here, not over-flagging.
 - **Tý Ngọ Lưu Chú** and **Giả Khỏi** need accumulated real editing history
   before they produce anything. On a fresh install they correctly report
   nothing — that's expected, not a bug.

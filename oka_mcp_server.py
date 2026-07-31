@@ -30,6 +30,7 @@ from thiet_chan_pulse import thiet_chan_trung_uong
 from ve_khi_bao_ve import ve_khi_trung_uong
 from can_tang_goc import can_tang_trung_uong
 from soi_chat_luong import soi_chat_luong_trung_uong
+from am_duong_can_bang import can_bang_am_duong_trung_uong
 import xoan_oc_ky_uc
 
 mcp = MCPServer("oka")
@@ -107,6 +108,16 @@ def oka_quality_scan(project_path: str) -> str:
     benh_nhan = _chuan_hoa_benh_nhan(project_path)
     _dam_bao_da_nhai(benh_nhan)
     return _capture(soi_chat_luong_trung_uong.soi_va_bao_cao, benh_nhan)
+
+
+@mcp.tool()
+def oka_balance_check(project_path: str) -> str:
+    """Cân Bằng Âm Dương - tìm lời gọi hàm/self.method() KHÔNG có định
+    nghĩa tương ứng trong dự án (dấu hiệu AI bịa hàm không tồn tại). Chỉ
+    xét lời gọi tên trần và self.method() trong lớp không kế thừa - có thể
+    bỏ sót nhưng không báo giả tràn lan."""
+    benh_nhan = _chuan_hoa_benh_nhan(project_path)
+    return _capture(can_bang_am_duong_trung_uong.soi_va_bao_cao, benh_nhan)
 
 
 @mcp.tool()

@@ -240,3 +240,10 @@ BAN_DICH.update({
         "en": "Scanning for duplication, empty wrappers, faked test recovery…",
     },
 })
+
+BAN_DICH.update({
+    "b_can_bang": {
+        "vi": "Đang soi cân bằng Âm Dương (gọi hàm ↔ định nghĩa)…",
+        "en": "Checking Yin-Yang balance (function calls vs definitions)…",
+    },
+})
