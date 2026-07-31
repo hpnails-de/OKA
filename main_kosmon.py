@@ -28,6 +28,7 @@ import tam_tieu_network         # Tam Tiêu   - giao tiếp ngoại giới
 import vong_chan_diagnostic     # Vọng Chẩn  - nhìn sắc diện
 import thiet_chan_pulse         # Thiết Chẩn - bắt mạch
 import can_tang_goc             # Can        - soi gốc quá tải (tái phát)
+import ve_khi_bao_ve            # Vệ Khí     - soi dấu hiệu bảo mật (phải import TRƯỚC Thượng Trí để đăng ký kịp)
 import thuong_tri_tong_hop      # Thượng Trí - tổng hợp nhận định (chạy sau Thiết Chẩn + Can)
 
 from phe_watchdog import khoi_dong_nhip_tho, CO_WATCHDOG

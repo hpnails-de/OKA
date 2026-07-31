@@ -226,3 +226,10 @@ BAN_DICH.update({
     "o_ky_uc": {"vi": "Lượt hội thoại đã nhớ", "en": "Conversation turns recalled"},
     "nut_mo_ky_uc": {"vi": "🌀  Mở file ký ức", "en": "🌀  Open memory file"},
 })
+
+BAN_DICH.update({
+    "b_bao_mat": {
+        "vi": "Đang soi dấu hiệu bảo mật (Vệ Khí)…",
+        "en": "Scanning for security signals (Vệ Khí)…",
+    },
+})

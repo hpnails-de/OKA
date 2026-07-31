@@ -24,6 +24,7 @@ from can_tang_goc import can_tang_trung_uong
 import phan_vu_vong
 import ty_ngo_luu_chu
 import mien_dich
+import ve_khi_bao_ve
 
 
 class ThuongTri:
@@ -201,6 +202,16 @@ class ThuongTri:
                 benh_nhan, cap, chi_tiet, len(mach["ky_uc"].get("files", {}))
             )
             for van in mua_gat.ke_lai(mua_nay, mua_truoc, mua_gat.lich_su(benh_nhan)):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+
+        # --- I: Vệ Khí - dấu hiệu bảo mật (regex, không phân tích luồng dữ
+        # liệu thật -> SUY ĐOÁN tuyệt đối, không có ngoại lệ CHẮC CHẮN nào
+        # ở đây, kể cả khi mẫu khớp chính xác 100% về mặt cú pháp).
+        try:
+            phat_hien_bao_mat = ve_khi_bao_ve.quet(benh_nhan)
+            for van in ve_khi_bao_ve.ke_lai(phat_hien_bao_mat):
                 nhan_dinh.append((DOAN, van))
         except Exception:
             pass
