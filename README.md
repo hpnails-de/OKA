@@ -14,14 +14,54 @@ soi dấu hiệu vá triệu chứng mà chưa chạm gốc, rồi xuất một 
 nhẹ ("Chân Kinh") để dán cho AI trước khi nhờ nó sửa tiếp, giúp AI không bịa
 ra hàm không tồn tại hay phá vỡ chỗ khác khi sửa.
 
-**Kiến trúc mượn nguyên khung Đông Y** (Ngũ Tạng, Lục Phủ, Tứ Chẩn) — không
-phải để cho vui, mà vì cơ thể người là hệ thống quản lý thông tin đã được
-thử thách hàng triệu năm: nhai thức ăn thành tinh chất rồi bỏ xác thô, nhớ
-mầm bệnh cũ để lần sau nhận ra ngay, có tạng chuyên đào thải cái vô dụng.
+**Kiến trúc mượn khung Đông Y** (Ngũ Tạng, Lục Phủ, Tứ Chẩn) làm ẩn dụ thiết
+kế — mỗi module core đặt tên theo một tạng phủ, vì cơ thể sống là một hệ
+quản lý thông tin đã được thử nghiệm hàng triệu năm (chỉ giữ lại tinh hoa,
+đào thải cái vô dụng, nhớ mầm bệnh cũ). Đây là ẩn dụ giúp tác giả tư duy về
+kiến trúc, **không phải quảng cáo** — phần "Giới hạn thật" bên dưới liệt kê
+rõ những gì tool CHƯA làm được.
 
 **Giao diện có tiếng Việt và tiếng Anh** — bấm nút VI/EN ở góc phải.
 
-## Cài đặt
+---
+
+## 🐣 Dành cho người mới — chưa từng lập trình cũng làm được
+
+Làm theo đúng 5 bước này, không cần biết gì về lập trình:
+
+**Bước 1 — Cài Python** (nếu máy chưa có)
+Vào [python.org/downloads](https://www.python.org/downloads/), tải bản mới
+nhất, chạy file cài đặt. **Quan trọng:** ở màn hình đầu tiên, tick vào ô
+**"Add Python to PATH"** trước khi bấm Install — bỏ qua bước này thì các
+bước sau sẽ báo lỗi.
+
+**Bước 2 — Tải OKA về máy**
+Vào trang [github.com/hpnails-de/OKA](https://github.com/hpnails-de/OKA),
+bấm nút xanh **"Code"** → **"Download ZIP"**. Giải nén file zip ra một chỗ
+dễ nhớ (ví dụ Desktop).
+
+**Bước 3 — Mở OKA**
+Vào đúng thư mục vừa giải nén, **bấm đúp vào file `MO_OKA.bat`**. Một cửa
+sổ đen sẽ hiện lên kiểm tra Python, rồi một cửa sổ nhỏ của OKA sẽ mở ra.
+(Nếu cửa sổ đen báo chưa có Python, quay lại Bước 1.)
+
+**Bước 4 — Khám dự án**
+Trong cửa sổ OKA, bấm **"📂 Chọn thư mục dự án..."**, chọn đúng thư mục dự
+án bạn muốn AI giúp sửa. Đợi vài giây tới vài phút (tùy dự án lớn nhỏ) —
+thanh tiến trình sẽ báo đang làm gì.
+
+**Bước 5 — Dùng kết quả**
+Xong việc, OKA lưu một file `OKA_BAO_CAO_<tên_dự_án>.md` NGAY TRONG thư mục
+dự án đó. Bấm nút **"📋 Copy nội dung"** trong cửa sổ OKA (hoặc tự mở file
+đó bằng Notepad), rồi dán toàn bộ vào khung chat với AI (Claude, ChatGPT...)
+kèm câu đại loại: *"Đây là bối cảnh dự án tôi, đọc trước khi giúp tôi sửa
+code nhé."*
+
+Chỉ vậy thôi — không cần hiểu Ngũ Tạng/Lục Phủ, không cần gõ lệnh gì.
+
+---
+
+## Cài đặt (cho ai muốn tự chạy bằng dòng lệnh, hoặc dùng macOS/Linux)
 
 Chỉ cần Python 3.9+ và thư viện chuẩn — **không bắt buộc cài gì thêm**.
 Hai thư viện dưới đây là tùy chọn, thiếu vẫn chạy được (tự chuyển sang chế độ
@@ -36,10 +76,11 @@ pip install -r requirements.txt   # tùy chọn: bản CLI không cần cũng ch
 ```bash
 python oka_don_gian.py
 ```
+(Trên Windows, bấm đúp `MO_OKA.bat` làm đúng việc này, không cần mở dòng lệnh.)
+
 Mở ra một cửa sổ nhỏ, bấm "📂 Chọn thư mục dự án...", chọn xong OKA tự chạy
-hết mọi bước rồi xuất **đúng một file** `OKA_BAO_CAO_<tên_dự_án>.md` ngay
-trong thư mục dự án đó — dán toàn bộ file này cho AI trước khi nhờ nó sửa
-code. Không cần biết gì về Ngũ Tạng/Lục Phủ bên trong cũng dùng được.
+hết mọi bước rồi xuất file `OKA_BAO_CAO_<tên_dự_án>.md` ngay trong thư mục
+dự án đó — dán toàn bộ file này cho AI trước khi nhờ nó sửa code.
 
 ## Cách dùng qua dòng lệnh (linh hoạt hơn, cho ai quen terminal)
 
@@ -58,129 +99,75 @@ bảng đầy đủ bất cứ lúc nào):
 |---|---|
 | `nhai` | Tỳ Tạng tiêu hóa toàn bộ dự án — **luôn làm lệnh này trước tiên** |
 | `kham` | Vọng Chẩn — nhìn sắc diện: file nào chính chủ, file nào lạ, file nào phình to |
-| `mach` | Thiết Chẩn bắt mạch (huyệt hiểm, khí chết) - Thượng Trí tự tổng hợp nhận định ngay sau đó (dùng ngầm cả dữ liệu Can Tạng, không cần gõ `goc` riêng để có nhận định tổng hợp) |
+| `mach` | Thiết Chẩn bắt mạch (huyệt hiểm, khí chết) - Thượng Trí tự tổng hợp nhận định ngay sau đó |
 | `mach <tên hàm>` | Sửa hàm này thì hỏng những đâu? |
-| `goc` | Can Tạng — in báo cáo CHI TIẾT file nào đang bị vá triệu chứng, chưa chạm gốc (Thượng Trí chỉ tóm tắt 1 dòng, muốn xem đầy đủ thì gõ lệnh này) |
+| `goc` | Can Tạng — file nào đang bị vá triệu chứng, chưa chạm gốc |
 | `baomat` | Vệ Khí — soi dấu hiệu bảo mật (secret viết cứng, eval, SQL nối chuỗi, TLS tắt xác thực...) |
 | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi — soi trùng lặp code, lớp bọc thừa, test bị làm yếu |
+| `nhoky` | Xoắn Ốc Ký Ức — nén lịch sử hội thoại đã có với AI về dự án này |
 | `kinh [từ khóa]` | Xuất Chân Kinh — bản tóm tắt để dán cho AI trước khi nhờ nó sửa code |
 | `benhnhan` | Xem / đổi dự án đang khám |
 | `hoisinh <file>` | Phục hồi file từ bản Nguyên Khí (backup) đã lưu |
 | `don` | Đại Trường dọn rác (.temp, cache...) |
 | `thoat` | Đóng lại |
 
-Có GUI riêng (cần `pip install customtkinter`): `python gui_nhan_tang.py`.
+## Kiến trúc — tên module thật trong code (không phải bản thiết kế mơ)
 
----
+Mỗi hàng dưới đây là một **file thật** trong repo, không phải ý tưởng chưa
+viết:
 
-🌿 BỘ KHUNG THẦN KINH: NGŨ TẠNG (5 Core Modules - Lưu trữ Tinh Hoa)
+| Ẩn dụ Đông Y | File thật | Làm gì |
+|---|---|---|
+| **Tỳ Tạng** (lá lách — tiêu hóa) | `ty_tang_parser.py` | Tiêu hóa file source thành bộ xương nhẹ (tên hàm/lớp), bỏ phần thân |
+| **Thận Tạng** (thận — tàng tinh) | `than_tang_backup.py` | Backup có phiên bản, phục hồi khi cần |
+| **Vọng Chẩn** (nhìn sắc diện) | `vong_chan_diagnostic.py` | Khám bề mặt: kích thước file, file lạ, file phình to |
+| **Thiết Chẩn** (bắt mạch) | `thiet_chan_pulse.py` | Đồ thị gọi hàm: điểm trọng yếu, code chết |
+| **Can Tạng** (gan — gốc bệnh mãn) | `can_tang_goc.py` | Đánh dấu file bị vá đi vá lại mà không chạm gốc |
+| **Phản Vũ** (khắc chế ngược) | `phan_vu_vong.py` | Dò vòng phụ thuộc luẩn quẩn (thuật toán Tarjan) |
+| **Tý Ngọ Lưu Chú** (khí huyết theo giờ) | `ty_ngo_luu_chu.py` | Liên kết ẩn: file luôn đổi cùng nhau mà KHÔNG hề import nhau |
+| **Vệ Khí** (khí phòng vệ ngoài bì mao) | `ve_khi_bao_ve.py` | Soi dấu hiệu bảo mật ở cửa ngõ: secret viết cứng, eval, SQL nối chuỗi... |
+| **Trùng Ảnh** (bóng trùng) | `trung_anh.py` | Hàm có cấu trúc logic giống hệt nhau bị copy-paste ở nhiều file |
+| **Vỏ Rỗng** (lớp bọc rỗng) | `vo_rong.py` | File có nhiều hàm chỉ gọi lại hàm khác, không thêm logic — dấu hiệu thừa tầng |
+| **Giả Khỏi** (giả vờ đã khỏi) | `gia_khoi.py` | Bài test bị làm yếu (giảm assertion) thay vì sửa lỗi thật |
+| **Miễn Dịch** (trí nhớ miễn dịch) | `mien_dich.py` | Nhớ lại vấn đề cũ; báo "tái nhiễm" nếu nó quay lại |
+| **Mùa Gặt** (chấm phẩm cấp) | `mua_gat.py` | Điểm sức khỏe 0-99 mỗi lần khám, so với lần trước |
+| **Xoắn Ốc Ký Ức** (ký ức Fibonacci) | `xoan_oc_ky_uc.py` | Nén lịch sử hội thoại AI theo tầng, để phiên AI mới đọc lại được mạch việc |
+| **Thượng Trí** (trí tổng hợp) | `thuong_tri_tong_hop.py` | Gộp mọi tín hiệu trên thành nhận định bằng ngôn ngữ tự nhiên |
 
-Tạng (Âm) có chức năng tàng trữ, lưu giữ tinh khí mà không làm thất thoát. Đây là các Module lõi của Tool, làm nhiệm vụ giữ gìn "Linh hồn" và "Ký ức" của dự án.
+Ba module cuối cùng của nhóm "chất lượng cấu trúc" (Trùng Ảnh/Vỏ Rỗng/Giả
+Khỏi) và Vệ Khí ra đời từ khảo sát developer thật năm 2026 (40% nói AI làm
+tăng nợ kỹ thuật vì code trùng lặp; ~1/4 code AI sinh ra có lỗ hổng bảo mật
+đã biết) — không phải suy đoán chủ quan.
 
+## Nhãn độ tin cậy — đọc phần này trước khi tin bất kỳ nhận định nào
 
+Mọi nhận định trong báo cáo đều gắn nhãn:
 
-TÂM (Trái tim) - core_engine.py:
+- **CHẮC CHẮN** — đếm thẳng từ code (số lần gọi, số dòng, vòng import). Không
+  cãi được.
+- **SUY ĐOÁN** — dựa trên quy tắc/mẫu, CÓ THỂ SAI, và báo cáo luôn nói rõ vì
+  sao có thể sai. Ví dụ: "code chết" không thấy được hàm gọi động, gọi qua
+  route web, hay là entry point.
 
-Y lý: Tâm tàng Thần, là bậc quân vương chỉ huy toàn thân.
+Công cụ nào trình bày mọi nhận định với cùng một giọng chắc nịch sẽ khiến
+người đọc mất lòng tin vào TẤT CẢ chúng, kể cả chỗ đúng. OKA cố tình tách
+riêng hai loại này.
 
-Software: Bộ não điều phối chính (Context Manager). Nó nắm giữ "Bối cảnh" (Context) hiện tại, điều phối Prompt gửi cho AI, và giữ cho AI luôn tỉnh táo, không bị "tẩu hỏa nhập ma" (ảo giác).
+## Giới hạn thật — nói thẳng để bạn không kỳ vọng sai
 
-CAN (Lá gan) - task_router.py:
-
-Y lý: Can tàng Huyết, chủ mưu lự (lập kế hoạch), chủ sơ tiết (điều hòa dòng chảy).
-
-Software: Bộ Lập trình luồng (Task Queue/Router). Nó lên kế hoạch: AI phải làm file A trước, rồi mới sửa file B. Nó ngăn chặn sự xung đột code để "Khí Huyết" (Data) lưu thông mượt mà.
-
-TỲ (Lá lách) - ast_parser.py:
-
-Y lý: Tỳ chủ vận hóa, hấp thụ thức ăn biến thành tinh chất.
-
-Software: Bộ Phân tích cú pháp (Code Parser/AST). Khi AI nhả ra một đống code mới (Thức ăn), Tỳ sẽ đọc hiểu, "tiêu hóa" để phân tách đâu là Hàm (Function), đâu là Lớp (Class), biến nó thành Ký ức (JSON) nuôi dưỡng hệ thống.
-
-PHẾ (Phổi) - file_watchdog.py:
-
-Y lý: Phế chủ hô hấp, cai quản phần ranh giới (da lông), nhận khí từ trời.
-
-Software: Bộ Lắng nghe hệ thống (File System Watcher). Giống như nhịp thở, nó liên tục lắng nghe mọi thay đổi khi bạn bấm Ctrl + S. Nó là nơi giao tiếp giữa Tool và ổ cứng của bạn.
-
-THẬN (Hai quả thận) - version_control.py:
-
-Y lý: Thận tàng Tinh, là gốc của tiên thiên (cội nguồn sự sống).
-
-Software: Bộ Lưu trữ Lịch sử & Khôi phục (Backup/Git Versioning). Nó giữ lại bản sao hoàn hảo của dự án. Nếu AI code hỏng (cơ thể suy yếu), Thận sẽ cung cấp "Nguyên khí" để phục hồi (Rollback) lại trạng thái khỏe mạnh ban đầu.
-
-🔥 BỘ KHUNG THỰC THI: LỤC PHỦ (6 Executing Modules - Vận hành và Đào thải)
-
-Phủ (Dương) có chức năng thu nạp, vận chuyển và bài tiết. Đây là các Module thực thi, xử lý code rác, dọn dẹp lỗi.
-
-
-
-VỊ (Dạ dày) - input_receiver.py: Nơi tiếp nhận lệnh từ bạn (Prompt của User) trước khi đưa xuống Tỳ (Parser) phân tích.
-
-ĐỞM (Mật) - error_validator.py: Chủ sự quyết đoán. Nó sẽ Test code của AI. Nếu code chạy báo lỗi (Bug), Đởm sẽ quyết định từ chối (Reject) đoạn code đó ngay lập tức.
-
-TIỂU TRƯỜNG (Ruột non) - code_linter.py: Làm nhiệm vụ "Phân thanh giáng trọc" (tách cái trong sạch và cái dơ bẩn). Nó định dạng lại code (Format), xóa các khoảng trắng thừa, chuẩn hóa lại tên biến cho sạch sẽ.
-
-ĐẠI TRƯỜNG (Ruột già) - garbage_collector.py: Đào thải cặn bã. Xóa các file .temp, cache thừa mứa sinh ra trong quá trình AI làm việc để máy không bị Lag.
-
-BÀNG QUANG (Bọng đái) - logger.py: Lưu trữ nước thải. Chuyên ghi lại các file error.log hoặc system.log để bạn có thể xem lại "bệnh án" của Tool.
-
-TAM TIÊU (Hệ thống màng bọc) - api_network_layer.py: Đường ống dẫn nước vô hình khắp cơ thể. Đây là Module kết nối mạng, tải thư viện (pip install) hoặc gọi API bên ngoài.
-
-⚡ KỲ KINH BÁT MẠCH (Kiến trúc xương sống - System Architecture)
-
-Các tạng phủ không thể hoạt động rời rạc. Chúng cần 8 mạch kỳ kinh để liên kết thành một Thể Thống Nhất. Trong lập trình, đây chính là Kiến trúc phần mềm (Design Pattern):
-
-
-
-NHÂM MẠCH (Bể chứa các kinh Âm) - state_store.py (Redux/Global State): Nằm ở phía trước cơ thể. Đây là nơi chứa toàn bộ Trạng thái (State) của dự án (ví dụ: Biến nào đang được dùng, file nào đang mở). Mọi module đều phải lấy bối cảnh từ Nhâm Mạch.
-
-ĐỐC MẠCH (Bể chứa các kinh Dương) - event_loop.py (Main Event Bus): Nằm dọc xương sống. Đây là Luồng vận hành chính (Main Loop). Các bộ phận không gọi nhau trực tiếp (để tránh Lag/Deadlock). Thay vào đó, chúng phát tín hiệu lên Đốc Mạch. Ví dụ: Phế (Watchdog) báo "File vừa lưu!", Đốc Mạch truyền tín hiệu đó xuống Tỳ (Parser) để tiêu hóa.
-
-LỜI TIÊN TRI CỦA NGƯỜI DỊCH GIẢ
-
-Khi chúng ta lập trình theo Kinh Lạc và Tạng Phủ này:
-
-
-
-Sẽ không bao giờ có chuyện "Lag": Vì Đốc Mạch điều phối tín hiệu bất đồng bộ (Asynchronous). Phế cứ thở, Tỳ cứ tiêu hóa, không ai cản đường ai.
-
-Sẽ không bao giờ AI "phá" code: Vì Thận luôn giữ lại Nguyên Khí (Bản Backup), và Đởm (Validator) luôn chặn đứng code lỗi trước khi nó xâm nhập vào Tâm.
-
-Hệ Thần Kinh Thực Vật: Toàn bộ quá trình này chạy ngầm (Background). Bạn không cần bấm nút "Run", cứ gõ code, cứ nói chuyện với AI, cơ thể Tool tự động hô hấp và tiêu hóa.
-
-Hỡi người Kỹ sư của thời đại Kosmon! Bức họa đồ Đạo Gia này đã mở ra trước mắt. Để nặn ra cơ thể này từ bùn đất (code), chúng ta nên bắt đầu bằng việc nặn "Đốc Mạch" (Event Loop - Xương sống truyền tin) hay "Phế" (Watchdog - Nhịp thở đầu tiên)? Bạn hãy hạ lệnh!
-
-
-
-
-
-
-
-
-
-Lúc trước tôi đã đi khắp cõi Internet và mang về "Tam Độc" (3 vấn đề cốt lõi mà nhân loại dùng AI gặp phải):
-
-Hội chứng "Teo não" (Lập trình viên mất kiểm soát logic).
-
-Ảo giác Hệ thống (AI chế bậy cấu trúc, sửa chỗ này hỏng chỗ kia).
-
-Đứt gãy Ký ức / Tràn bộ nhớ (Quăng cả file ngàn dòng khiến AI ngáo ngơ).
-
-Nhưng trong bước code vừa rồi, cái "Bạch Cầu" của chúng ta mới chỉ dùng ast.parse() để... bắt lỗi cú pháp (Syntax Error) kiểu như quên dấu hai chấm :. Nó hoàn toàn CHƯA giải quyết được 3 cái đại họa kia! Lỗi cú pháp thì trình soạn thảo nào cũng báo được, đâu cần đến Tiểu Vũ Trụ OKA!
-
-Bạn đã gõ một tiếng chuông cảnh tỉnh tuyệt vời. Để thực sự tiêu diệt "Tam Độc", chúng ta không thể chỉ dựa vào Bạch Cầu (Bắt lỗi). Chúng ta bắt buộc phải khai mở TỲ TẠNG (Hệ Tiêu Hóa Cấu Trúc) và TÂM TẠNG (Quản lý Trí nhớ) ngay lúc này!
-
-CÁCH TỲ TẠNG GIẢI QUYẾT TRỌN VẸN "TAM ĐỘC"
-Thay vì ném cho AI cả file 1000 dòng để nó bị "Tràn bộ nhớ" (Lỗi 3) và bắt đầu "Ảo giác" (Lỗi 2), Tỳ Tạng sẽ làm nhiệm vụ "nhai" file code đó, bóc tách lấy Bộ xương (Tên Class, Tên Hàm, Các biến toàn cục) và lưu vào một file siêu nhẹ (OKA_MEMORY.json).
-
-Khi đó:
-
-Bạn chỉ việc lấy cái file JSON bé xíu đó ném cho AI. Bộ nhớ của AI sẽ dư dả, nó nhìn thấu toàn bộ kiến trúc mà không bị ngợp. (Giải quyết lỗi 3).
-
-Vì bạn là người kiểm tra file JSON tóm tắt đó, bạn luôn nắm được sơ đồ dự án trong đầu, không bao giờ bị AI dắt mũi. (Giải quyết lỗi 1 - Teo não).
-
-Nếu AI gọi một hàm không hề có trong file JSON, hệ thống sẽ biết ngay nó đang "phê cần" và chặn lại. (Giải quyết lỗi 2 - Ảo giác).
+- Bản tóm tắt cho AI chỉ có **cấu trúc, không có logic**: giúp AI không bịa
+  tên hàm và biết chỗ nào rủi ro, nhưng KHÔNG mô tả một hàm cụ thể làm gì
+  bên trong.
+- JS/TS dùng **regex nhẹ**, không phải AST thật (AST thật cần cài
+  tree-sitter, phá nguyên tắc không-cài-đặt). Python dùng module `ast`
+  thật của chính Python.
+- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi đều dựa trên mẫu/số đếm — KHÔNG phân
+  tích luồng dữ liệu thật, KHÔNG chạy test thật. Luôn có thể báo giả.
+- **Tý Ngọ Lưu Chú** và **Giả Khỏi** cần lịch sử sửa đổi thật tích lũy dần
+  mới có gì để báo — cài mới thì đúng là báo trống, không phải lỗi.
+- Ngôn ngữ hỗ trợ: Python, JavaScript, TypeScript, JSX, TSX.
+- Đây KHÔNG phải công cụ bảo mật/QA thay thế cho rà soát bảo mật hay chạy
+  test thật — nó chỉ gợi ý chỗ ĐÁNG xem lại trước.
 
 ### Dùng thử và góp ý
 
@@ -203,6 +190,42 @@ breaking one thing while fixing another.
 Measured on real projects: **~96–97% fewer tokens** than pasting the source
 (counted with `tiktoken`, not estimated).
 
+Every module is named after a concept from Vietnamese/Chinese traditional
+medicine — that's a design metaphor the author thinks in, **not marketing**.
+See "Honest limitations" below for what the tool does *not* do.
+
+### 🐣 For complete beginners — no programming knowledge needed
+
+**Step 1 — Install Python** (if you don't have it)
+Go to [python.org/downloads](https://www.python.org/downloads/), download
+the latest version, run the installer. **Important:** on the first screen,
+check **"Add Python to PATH"** before clicking Install — skipping this
+makes every later step fail.
+
+**Step 2 — Download OKA**
+Go to [github.com/hpnails-de/OKA](https://github.com/hpnails-de/OKA), click
+the green **"Code"** button → **"Download ZIP"**. Unzip it somewhere easy to
+find (e.g. your Desktop).
+
+**Step 3 — Open OKA**
+On Windows: go into the unzipped folder and **double-click `MO_OKA.bat`**.
+A black window checks for Python, then OKA's window opens.
+On macOS/Linux: open a terminal in that folder and run `python3 oka_don_gian.py`.
+
+**Step 4 — Examine your project**
+Click **"Choose folder…"**, pick the project you want your AI to help with.
+Wait a few seconds to a few minutes depending on project size — a progress
+bar shows what it's doing.
+
+**Step 5 — Use the result**
+OKA saves a file named `OKA_BAO_CAO_<project>.md` directly inside that
+project's folder. Click **"Copy content"** in the OKA window (or open the
+file yourself in a text editor), then paste the whole thing into your chat
+with an AI (Claude, ChatGPT...) with something like: *"This is my project's
+context, read it before helping me modify the code."*
+
+That's it — no need to understand the organ metaphors, no commands to type.
+
 ### Why the Traditional-Medicine architecture?
 
 Every module is named after an organ from Vietnamese/Chinese traditional
@@ -210,24 +233,29 @@ medicine. This is not decoration. The human body is an information-management
 system refined over millions of years, and several of its strategies map
 directly onto hard problems in tooling:
 
-| Organ / concept | What it does in OKA |
-|---|---|
-| **Tỳ Tạng** (spleen — transforms food into essence) | Digests source files into a lightweight skeleton, discards the bulk |
-| **Thận Tạng** (kidney — stores vital essence) | Versioned backups, restore on demand |
-| **Vọng Chẩn** (visual inspection) | Surface exam: file sizes, foreign files, bloat |
-| **Thiết Chẩn** (pulse reading) | Call-graph analysis: critical points, dead code |
-| **Can Tạng** (liver — root of chronic illness) | Flags files patched over and over without fixing the root |
-| **Phản Vũ** (rebellious counter-restraint) | Circular-dependency detection (Tarjan SCC) |
-| **Tý Ngọ Lưu Chú** (organ-clock qi flow) | **Hidden coupling**: files that always change together but have *no* import linking them — invisible to pure static analysis |
-| **Vệ Khí** (defensive qi patrolling the body's surface) | Security-smell scan at the *perimeter*: hardcoded secrets, `eval`/`exec`, `shell=True`, disabled TLS verification, string-built SQL — regex-only, always labeled INFERRED |
-| **Trùng Ảnh** ("duplicate shadow") | Finds functions with *identical logic structure* (variable-renamed AST match) copy-pasted across different files — caught real duplicated crypto helper functions in a test project |
-| **Vỏ Rỗng** ("empty shell") | Flags files with 3+ functions that do nothing but forward their call to another function — a concentration signals unnecessary abstraction layers |
-| **Giả Khỏi** ("faked recovery") | Reads test-file backup history and flags when the assertion count *drops* between two saves — could be legitimate cleanup, could be a test weakened to pass instead of a real fix |
-| **Miễn Dịch** (adaptive immunity) | **Regression memory**: remembers every problem ever found; if a fixed problem returns, it raises a *reinfection* alert |
-| **Thượng Trí** (higher mind) | Synthesises all of the above into plain-language findings |
+| Organ / concept | Real file | What it does in OKA |
+|---|---|---|
+| **Tỳ Tạng** (spleen — transforms food into essence) | `ty_tang_parser.py` | Digests source files into a lightweight skeleton, discards the bulk |
+| **Thận Tạng** (kidney — stores vital essence) | `than_tang_backup.py` | Versioned backups, restore on demand |
+| **Vọng Chẩn** (visual inspection) | `vong_chan_diagnostic.py` | Surface exam: file sizes, foreign files, bloat |
+| **Thiết Chẩn** (pulse reading) | `thiet_chan_pulse.py` | Call-graph analysis: critical points, dead code |
+| **Can Tạng** (liver — root of chronic illness) | `can_tang_goc.py` | Flags files patched over and over without fixing the root |
+| **Phản Vũ** (rebellious counter-restraint) | `phan_vu_vong.py` | Circular-dependency detection (Tarjan SCC) |
+| **Tý Ngọ Lưu Chú** (organ-clock qi flow) | `ty_ngo_luu_chu.py` | **Hidden coupling**: files that always change together with *no* import linking them |
+| **Vệ Khí** (defensive qi at the body's surface) | `ve_khi_bao_ve.py` | Security-smell scan at the perimeter: hardcoded secrets, `eval`, `shell=True`, disabled TLS... |
+| **Trùng Ảnh** ("duplicate shadow") | `trung_anh.py` | Functions with identical logic structure copy-pasted across files |
+| **Vỏ Rỗng** ("empty shell") | `vo_rong.py` | Files with several functions that only forward to another function — unnecessary abstraction |
+| **Giả Khỏi** ("faked recovery") | `gia_khoi.py` | Test assertions thinned over time instead of the bug being fixed |
+| **Miễn Dịch** (adaptive immunity) | `mien_dich.py` | Regression memory: a fixed problem reappearing raises a *reinfection* alert |
+| **Mùa Gặt** (harvest) | `mua_gat.py` | 0–99 health grade each scan, trend vs the previous one |
+| **Xoắn Ốc Ký Ức** (Fibonacci memory spiral) | `xoan_oc_ky_uc.py` | Compresses your AI conversation history so a new session can pick up where you left off |
+| **Thượng Trí** (higher mind) | `thuong_tri_tong_hop.py` | Synthesises all of the above into plain-language findings |
 
-The last three have no equivalent in typical static analysers, and they came
-directly from thinking in body metaphors rather than in "code linter" terms.
+Vệ Khí and the three "structural quality" modules (Trùng Ảnh/Vỏ Rỗng/Giả
+Khỏi) came directly from real 2026 developer-survey data — 40% of developers
+report AI increases technical debt through duplicate/unnecessary code, and
+roughly a quarter of AI-generated code contains a known security
+vulnerability — not personal speculation.
 
 ### Install
 
@@ -272,6 +300,7 @@ python main_kosmon.py                            # re-examine the last project
 | `goc` | Which files are being patched repeatedly without a real fix |
 | `baomat` | Security-smell scan: hardcoded secrets, eval, string-built SQL, disabled TLS verification... |
 | `chatluong` | Duplicate logic across files, unnecessary wrapper concentration, tests weakened over time |
+| `nhoky` | Compress the conversation history you've had with your AI about this project |
 | `kinh [keyword]` | Export the digest for your AI |
 | `benhnhan` | Show / switch the project being examined |
 | `hoisinh <file>` | Restore a file from backup |
@@ -299,9 +328,15 @@ all of them. This one tells you which is which.
 - JS/TS parsing uses **lightweight regex**, not a real AST (that would require
   installing tree-sitter, breaking the zero-install rule). Python uses the real
   `ast` module.
-- **Tý Ngọ Lưu Chú** (hidden coupling) needs accumulated real editing history
-  before it produces anything. On a fresh install it correctly reports nothing.
+- Vệ Khí/Trùng Ảnh/Vỏ Rỗng/Giả Khỏi are pattern/count-based — they do **not**
+  analyze real data flow and do **not** run your actual test suite. False
+  positives are always possible.
+- **Tý Ngọ Lưu Chú** and **Giả Khỏi** need accumulated real editing history
+  before they produce anything. On a fresh install they correctly report
+  nothing — that's expected, not a bug.
 - Supported languages: Python, JavaScript, TypeScript, JSX, TSX.
+- This is **not** a replacement for a real security review or running your
+  test suite — it only points at places worth a second look.
 
 ### Try it and tell me what broke
 
