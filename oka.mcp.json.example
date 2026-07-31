@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "oka": {
+      "command": "python",
+      "args": ["DUONG/DAN/TOI/OKA_System/oka_mcp_server.py"]
+    }
+  }
+}

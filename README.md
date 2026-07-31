@@ -111,6 +111,53 @@ bảng đầy đủ bất cứ lúc nào):
 | `don` | Đại Trường dọn rác (.temp, cache...) |
 | `thoat` | Đóng lại |
 
+## Dùng qua MCP — để Claude tự gọi OKA, không cần copy-paste
+
+Ngoài GUI và CLI ở trên, OKA còn có thể chạy như một **MCP server**
+(`oka_mcp_server.py`) — Claude Code (hoặc Claude Desktop) gọi thẳng các
+công cụ chẩn đoán trong lúc trò chuyện, thay vì bạn phải tự mở terminal
+chạy `python oka_don_gian.py` rồi copy nội dung báo cáo dán vào chat.
+
+Đây là tính năng **nặng hơn hẳn** so với phần còn lại của dự án (gói `mcp`
+kéo theo hơn chục gói phụ thuộc như uvicorn/starlette), nên tách riêng khỏi
+`requirements.txt` — hoàn toàn không cần nếu bạn chỉ dùng GUI/CLI bình thường.
+
+**Cài đặt:**
+```bash
+pip install -r requirements-mcp.txt
+```
+
+**Đăng ký với Claude Code:** sao chép [`oka.mcp.json.example`](oka.mcp.json.example)
+thành `.mcp.json` trong dự án bạn muốn Claude khám (hoặc gộp vào cấu hình
+MCP hiện có), sửa đường dẫn `args` thành đường dẫn tuyệt đối thật tới
+`oka_mcp_server.py` trên máy bạn:
+
+```json
+{
+  "mcpServers": {
+    "oka": {
+      "command": "python",
+      "args": ["/duong/dan/toi/OKA_System/oka_mcp_server.py"]
+    }
+  }
+}
+```
+
+**6 công cụ có sẵn:**
+
+| Tool | Tương đương lệnh CLI | Chức năng |
+|---|---|---|
+| `oka_context` | `nhai` + `mach` + `kinh` | Đọc cấu trúc + cảnh báo rủi ro — gọi tool này ĐẦU TIÊN |
+| `oka_impact` | `mach <tên hàm>` | Sửa hàm này thì hỏng những đâu? |
+| `oka_security_scan` | `baomat` | Vệ Khí — dấu hiệu bảo mật |
+| `oka_root_cause` | `goc` | Can Tạng — file nào bị vá triệu chứng lặp lại |
+| `oka_quality_scan` | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi |
+| `oka_chat_memory` | `nhoky` | Xoắn Ốc Ký Ức — nén lại lịch sử hội thoại đã có với AI về dự án này |
+
+`oka_chat_memory` chỉ đọc được bản ghi của **Claude Code/Claude** (file
+`.jsonl` lưu tại `~/.claude/projects/`) — không đọc được lịch sử chat của
+Gemini/ChatGPT vì các nơi đó không lưu transcript ra máy theo cách này.
+
 ## Kiến trúc — tên module thật trong code (không phải bản thiết kế mơ)
 
 Mỗi hàng dưới đây là một **file thật** trong repo, không phải ý tưởng chưa
@@ -306,6 +353,53 @@ python main_kosmon.py                            # re-examine the last project
 | `hoisinh <file>` | Restore a file from backup |
 | `don` | Clean temp/cache garbage |
 | `thoat` | Quit |
+
+### Using it via MCP — let Claude call OKA directly, no copy-paste
+
+Besides the GUI and CLI above, OKA can also run as an **MCP server**
+(`oka_mcp_server.py`) — Claude Code (or Claude Desktop) calls the
+diagnostic tools directly mid-conversation, instead of you opening a
+terminal, running `python oka_don_gian.py`, and pasting the report back in.
+
+This is **noticeably heavier** than the rest of the project (the `mcp`
+package pulls in a dozen-plus dependencies like uvicorn/starlette), so it's
+kept out of `requirements.txt` — not needed at all if you only use the GUI/CLI.
+
+**Install:**
+```bash
+pip install -r requirements-mcp.txt
+```
+
+**Register with Claude Code:** copy [`oka.mcp.json.example`](oka.mcp.json.example)
+to `.mcp.json` in the project you want Claude to examine (or merge into
+your existing MCP config), and change `args` to the real absolute path to
+`oka_mcp_server.py` on your machine:
+
+```json
+{
+  "mcpServers": {
+    "oka": {
+      "command": "python",
+      "args": ["/path/to/OKA_System/oka_mcp_server.py"]
+    }
+  }
+}
+```
+
+**6 available tools:**
+
+| Tool | Equivalent CLI command | What it does |
+|---|---|---|
+| `oka_context` | `nhai` + `mach` + `kinh` | Structure + risk warnings — call this one FIRST |
+| `oka_impact` | `mach <name>` | If I change this function, what breaks? |
+| `oka_security_scan` | `baomat` | Vệ Khí — security-smell scan |
+| `oka_root_cause` | `goc` | Can Tạng — files being patched repeatedly without a real fix |
+| `oka_quality_scan` | `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi |
+| `oka_chat_memory` | `nhoky` | Compress the conversation history you've had with your AI about this project |
+
+`oka_chat_memory` only reads **Claude Code/Claude** transcripts (the `.jsonl`
+files under `~/.claude/projects/`) — it cannot read Gemini/ChatGPT chat
+history since those don't save transcripts to disk this way.
 
 ### Confidence labels — read these
 

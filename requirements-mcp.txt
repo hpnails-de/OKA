@@ -1,0 +1,8 @@
+# Chỉ cần nếu bạn muốn Claude gọi thẳng công cụ OKA qua MCP
+# (oka_mcp_server.py), thay vì tự chạy oka_don_gian.py / main_kosmon.py rồi
+# copy-paste kết quả. KHÔNG cần cài file này để dùng GUI/CLI bình thường -
+# tách riêng khỏi requirements.txt vì gói `mcp` kéo theo nhiều gói phụ
+# thuộc hơn hẳn (uvicorn, starlette, pywin32...), không nhẹ như 3 gói tùy
+# chọn còn lại của dự án.
+
+mcp>=2.0
