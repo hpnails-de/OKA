@@ -8,6 +8,11 @@
 
 > 🇻🇳 Tiếng Việt bên dưới · 🇬🇧 **[English section below](#-english)**
 
+**OKA = Oahspe Kosmon Architect.** *Oahspe* (cuốn kinh sách nguồn cảm hứng
+kiến trúc), *Kosmon* (thời đại tri thức/thức tỉnh mà Oahspe nói tới), và
+*Architect* — vai trò của cả người dùng lẫn tool: người vạch bản thiết kế,
+phân chia Lục Phủ Ngũ Tạng, giữ trật tự cho hệ thống số của mình.
+
 OKA không phải tool tự viết code. Nó là **công cụ chẩn đoán** gắn vào một dự án
 khác (thường là dự án bạn để AI viết giúp) — đọc cấu trúc, tìm chỗ rủi ro,
 soi dấu hiệu vá triệu chứng mà chưa chạm gốc, rồi xuất một bản tóm tắt cực
@@ -226,6 +231,11 @@ thiện nhanh nhất. [Mở issue tại đây](../../issues/new/choose).
 ---
 
 ## 🇬🇧 English
+
+**OKA = Oahspe Kosmon Architect.** *Oahspe* (the book that inspired the
+architecture), *Kosmon* (the age of awakened knowledge Oahspe describes),
+and *Architect* — the role of both the user and the tool: the one who
+draws the blueprint and keeps order across a digital system.
 
 **OKA is a diagnostic tool, not a code generator.** You point it at a project
 (typically one you built with an AI assistant) and it reads the structure,

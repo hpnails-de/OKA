@@ -10,6 +10,19 @@
 
 ---
 
+## 0. TÊN GỌI
+
+**OKA = Oahspe Kosmon Architect.**
+- **Oahspe** — cuốn sách nguồn cảm hứng kiến trúc (đã dùng ẩn dụ tương tự
+  cho tool đào Bitcoin trước OKA).
+- **Kosmon** — thời đại tri thức/thức tỉnh mà Oahspe nói tới.
+- **Architect** — vai trò của CẢ NGƯỜI DÙNG lẫn tool: người vạch bản thiết
+  kế, phân chia Lục Phủ Ngũ Tạng, giữ trật tự cho hệ thống số của mình.
+  Không phải OKA tự kiến trúc hộ bạn — nó cung cấp bản đồ để BẠN làm kiến
+  trúc sư tốt hơn.
+
+---
+
 ## 1. HAI MỤC ĐÍCH GỐC
 
 **Mục đích A — Nén ngữ cảnh (phương pháp).**
