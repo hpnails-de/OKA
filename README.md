@@ -62,6 +62,7 @@ bảng đầy đủ bất cứ lúc nào):
 | `mach <tên hàm>` | Sửa hàm này thì hỏng những đâu? |
 | `goc` | Can Tạng — in báo cáo CHI TIẾT file nào đang bị vá triệu chứng, chưa chạm gốc (Thượng Trí chỉ tóm tắt 1 dòng, muốn xem đầy đủ thì gõ lệnh này) |
 | `baomat` | Vệ Khí — soi dấu hiệu bảo mật (secret viết cứng, eval, SQL nối chuỗi, TLS tắt xác thực...) |
+| `chatluong` | Trùng Ảnh/Vỏ Rỗng/Giả Khỏi — soi trùng lặp code, lớp bọc thừa, test bị làm yếu |
 | `kinh [từ khóa]` | Xuất Chân Kinh — bản tóm tắt để dán cho AI trước khi nhờ nó sửa code |
 | `benhnhan` | Xem / đổi dự án đang khám |
 | `hoisinh <file>` | Phục hồi file từ bản Nguyên Khí (backup) đã lưu |
@@ -219,6 +220,9 @@ directly onto hard problems in tooling:
 | **Phản Vũ** (rebellious counter-restraint) | Circular-dependency detection (Tarjan SCC) |
 | **Tý Ngọ Lưu Chú** (organ-clock qi flow) | **Hidden coupling**: files that always change together but have *no* import linking them — invisible to pure static analysis |
 | **Vệ Khí** (defensive qi patrolling the body's surface) | Security-smell scan at the *perimeter*: hardcoded secrets, `eval`/`exec`, `shell=True`, disabled TLS verification, string-built SQL — regex-only, always labeled INFERRED |
+| **Trùng Ảnh** ("duplicate shadow") | Finds functions with *identical logic structure* (variable-renamed AST match) copy-pasted across different files — caught real duplicated crypto helper functions in a test project |
+| **Vỏ Rỗng** ("empty shell") | Flags files with 3+ functions that do nothing but forward their call to another function — a concentration signals unnecessary abstraction layers |
+| **Giả Khỏi** ("faked recovery") | Reads test-file backup history and flags when the assertion count *drops* between two saves — could be legitimate cleanup, could be a test weakened to pass instead of a real fix |
 | **Miễn Dịch** (adaptive immunity) | **Regression memory**: remembers every problem ever found; if a fixed problem returns, it raises a *reinfection* alert |
 | **Thượng Trí** (higher mind) | Synthesises all of the above into plain-language findings |
 
@@ -267,6 +271,7 @@ python main_kosmon.py                            # re-examine the last project
 | `mach <name>` | If I change this function, what breaks? |
 | `goc` | Which files are being patched repeatedly without a real fix |
 | `baomat` | Security-smell scan: hardcoded secrets, eval, string-built SQL, disabled TLS verification... |
+| `chatluong` | Duplicate logic across files, unnecessary wrapper concentration, tests weakened over time |
 | `kinh [keyword]` | Export the digest for your AI |
 | `benhnhan` | Show / switch the project being examined |
 | `hoisinh <file>` | Restore a file from backup |

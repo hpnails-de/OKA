@@ -29,6 +29,7 @@ import vong_chan_diagnostic     # Vọng Chẩn  - nhìn sắc diện
 import thiet_chan_pulse         # Thiết Chẩn - bắt mạch
 import can_tang_goc             # Can        - soi gốc quá tải (tái phát)
 import ve_khi_bao_ve            # Vệ Khí     - soi dấu hiệu bảo mật (phải import TRƯỚC Thượng Trí để đăng ký kịp)
+import soi_chat_luong           # Trùng Ảnh/Vỏ Rỗng/Giả Khỏi - chất lượng cấu trúc (dùng cho lệnh 'chatluong')
 import thuong_tri_tong_hop      # Thượng Trí - tổng hợp nhận định (chạy sau Thiết Chẩn + Can)
 
 from phe_watchdog import khoi_dong_nhip_tho, CO_WATCHDOG

@@ -25,6 +25,9 @@ import phan_vu_vong
 import ty_ngo_luu_chu
 import mien_dich
 import ve_khi_bao_ve
+import trung_anh
+import vo_rong
+import gia_khoi
 
 
 class ThuongTri:
@@ -212,6 +215,27 @@ class ThuongTri:
         try:
             phat_hien_bao_mat = ve_khi_bao_ve.quet(benh_nhan)
             for van in ve_khi_bao_ve.ke_lai(phat_hien_bao_mat):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+
+        # --- J: Trùng Ảnh / Vỏ Rỗng / Giả Khỏi - nhóm "chất lượng cấu
+        # trúc" phát sinh từ khảo sát developer thật (40% nói AI làm tăng
+        # nợ kỹ thuật vì code trùng lặp/dư thừa; "gaming tests" là than
+        # phiền phổ biến). Cả 3 đều SUY ĐOÁN tuyệt đối - lý do nêu rõ trong
+        # từng module.
+        try:
+            for van in trung_anh.ke_lai(trung_anh.quet(benh_nhan)):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+        try:
+            for van in vo_rong.ke_lai(vo_rong.quet(benh_nhan)):
+                nhan_dinh.append((DOAN, van))
+        except Exception:
+            pass
+        try:
+            for van in gia_khoi.ke_lai(gia_khoi.quet(benh_nhan)):
                 nhan_dinh.append((DOAN, van))
         except Exception:
             pass

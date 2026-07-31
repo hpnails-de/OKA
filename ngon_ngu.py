@@ -233,3 +233,10 @@ BAN_DICH.update({
         "en": "Scanning for security signals (Vệ Khí)…",
     },
 })
+
+BAN_DICH.update({
+    "b_chat_luong": {
+        "vi": "Đang soi trùng lặp, vỏ rỗng, giả khỏi (chất lượng cấu trúc)…",
+        "en": "Scanning for duplication, empty wrappers, faked test recovery…",
+    },
+})

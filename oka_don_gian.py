@@ -62,6 +62,7 @@ def kham_benh_va_xuat_file(duong_dan_du_an, bao_trang_thai=lambda msg: None):
         (t("b_mach"), "YEU_CAU_BAT_MACH", duong_dan_du_an),
         (t("b_goc"), "YEU_CAU_KHAM_GOC", duong_dan_du_an),
         (t("b_bao_mat"), "YEU_CAU_SOI_BAO_MAT", duong_dan_du_an),
+        (t("b_chat_luong"), "YEU_CAU_SOI_CHAT_LUONG", duong_dan_du_an),
     ]
     for thong_bao, su_kien, du_lieu in cac_buoc:
         bao_trang_thai(thong_bao)

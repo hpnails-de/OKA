@@ -18,6 +18,7 @@ BANG_LENH = """
    mach <tên hàm>  - Sửa hàm này thì hỏng những đâu?
    goc             - Can Tạng: soi file nào đang bị vá triệu chứng, chưa chạm gốc
    baomat          - Vệ Khí: soi dấu hiệu bảo mật (secret viết cứng, eval, SQL nối chuỗi...)
+   chatluong       - Soi trùng lặp code, lớp bọc thừa, test bị làm yếu
    kinh [từ khóa]  - Xuất Chân Kinh cho AI (có từ khóa thì chỉ lấy phần liên quan)
    nhoky           - Xoắn Ốc Ký Ức: nén lịch sử hội thoại để AI nhớ lại mạch việc
    benhnhan        - Xem / đổi bệnh nhân đang khám
@@ -78,6 +79,9 @@ class ViTang:
 
         elif lenh == 'baomat':
             xuong_song_trung_uong.phat_khi("YEU_CAU_SOI_BAO_MAT", cfg.benh_nhan_hien_tai())
+
+        elif lenh == 'chatluong':
+            xuong_song_trung_uong.phat_khi("YEU_CAU_SOI_CHAT_LUONG", cfg.benh_nhan_hien_tai())
 
         elif lenh == 'kinh':
             xuong_song_trung_uong.phat_khi("YEU_CAU_CHAN_KINH", {"loc": tham_so or None})
