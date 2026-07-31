@@ -1,6 +1,11 @@
 # OKA_System — Thầy Thuốc cho code do AI viết
 ### *The Physician for AI-written code*
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+![Zero install required](https://img.shields.io/badge/dependencies-zero%20required-brightgreen)
+![Stdlib only](https://img.shields.io/badge/stdlib-only-lightgrey)
+
 > 🇻🇳 Tiếng Việt bên dưới · 🇬🇧 **[English section below](#-english)**
 
 OKA không phải tool tự viết code. Nó là **công cụ chẩn đoán** gắn vào một dự án
@@ -175,6 +180,13 @@ Vì bạn là người kiểm tra file JSON tóm tắt đó, bạn luôn nắm �
 
 Nếu AI gọi một hàm không hề có trong file JSON, hệ thống sẽ biết ngay nó đang "phê cần" và chặn lại. (Giải quyết lỗi 2 - Ảo giác).
 
+### Dùng thử và góp ý
+
+Đây là dự án cá nhân, lần đầu thử làm mã nguồn mở đúng nghĩa. Nếu bạn chạy
+thử trên dự án của mình — nhất là ngôn ngữ/framework tôi chưa test kỹ — và
+thấy nó nhận định sai hoặc khó hiểu, đó chính là loại phản hồi giúp cải
+thiện nhanh nhất. [Mở issue tại đây](../../issues/new/choose).
+
 ---
 
 ## 🇬🇧 English
@@ -282,6 +294,14 @@ all of them. This one tells you which is which.
 - **Tý Ngọ Lưu Chú** (hidden coupling) needs accumulated real editing history
   before it produces anything. On a fresh install it correctly reports nothing.
 - Supported languages: Python, JavaScript, TypeScript, JSX, TSX.
+
+### Try it and tell me what broke
+
+This is a solo project trying out a real open-source cycle. If you run it on
+your own project — especially a language mix or framework I haven't tested —
+and it misclassifies something or gives a confusing finding, that's exactly
+the kind of report that improves it fastest.
+[Open an issue](../../issues/new/choose) or see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### License
 
