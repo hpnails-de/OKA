@@ -30,6 +30,7 @@ from thiet_chan_pulse import thiet_chan_trung_uong
 from ve_khi_bao_ve import ve_khi_trung_uong
 from can_tang_goc import can_tang_trung_uong
 from soi_chat_luong import soi_chat_luong_trung_uong
+import xoan_oc_ky_uc
 
 mcp = MCPServer("oka")
 
@@ -106,6 +107,24 @@ def oka_quality_scan(project_path: str) -> str:
     benh_nhan = _chuan_hoa_benh_nhan(project_path)
     _dam_bao_da_nhai(benh_nhan)
     return _capture(soi_chat_luong_trung_uong.soi_va_bao_cao, benh_nhan)
+
+
+@mcp.tool()
+def oka_chat_memory(project_path: str, merge_all_sessions: bool = False) -> str:
+    """Nén lịch sử hội thoại Claude Code THẬT (đọc từ ~/.claude/projects/) đã
+    chat trong thư mục làm việc này thành trí nhớ xoắn ốc Fibonacci - lượt
+    gần đây giữ nguyên văn, lượt xa nén dần - để nhớ lại mạch chuyện dài mà
+    không cần đọc lại từ đầu. CHỈ hoạt động với phiên Claude Code/Claude
+    chạy trong đúng project_path này; không đọc được chat ở nơi khác
+    (Gemini, ChatGPT...) vì họ không lưu file .jsonl kiểu này ra máy.
+    merge_all_sessions: True để gộp mọi phiên từng chat trong thư mục này,
+    False (mặc định) chỉ lấy đúng phiên gần nhất."""
+    van_ban, thong_ke = xoan_oc_ky_uc.dung_tu_du_an(
+        project_path, gop_moi_phien=merge_all_sessions
+    )
+    if not van_ban:
+        return f"⚠️ Không tìm thấy bản ghi hội thoại Claude Code nào cho '{project_path}'."
+    return van_ban
 
 
 if __name__ == "__main__":
