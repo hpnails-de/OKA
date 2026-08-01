@@ -3,22 +3,25 @@
 Tool web local (Flask) giúp bạn dùng AI (Groq / Gemini / Claude) viết bài rồi
 đăng thẳng lên Facebook Page của bạn, qua Facebook Graph API.
 
-## Chạy trên Windows
+## Chạy trên Windows (khuyên dùng — không cần mở terminal/VSCode)
 1. Cài Python tại python.org/downloads (nhớ tick "Add Python to PATH").
 2. Giải nén thư mục này ra một chỗ dễ nhớ.
-3. Bấm đúp file `MO_FB_AI.bat` ở thư mục cha (nếu bạn giải nén nguyên repo OKA),
-   hoặc mở terminal trong thư mục `fb_ai_manager` rồi chạy:
-   ```
-   pip install -r requirements.txt
-   python run.py
-   ```
+3. Bấm đúp file `MO_FB_AI.bat` ở thư mục cha (nếu bạn giải nén nguyên repo OKA).
+   Lần đầu chạy sẽ hơi lâu vì tool tự tạo **môi trường ảo riêng**
+   (`fb_ai_manager/venv/`) rồi cài thư viện vào đó — không đụng tới Python hệ
+   thống của bạn. Những lần sau mở lại rất nhanh.
 4. Trình duyệt tự mở `http://127.0.0.1:5050`.
 
-## Chạy trên macOS / Linux
+## Chạy trên macOS / Linux (không cần mở terminal/VSCode)
+Bấm đúp file `MO_FB_AI.sh` ở thư mục cha (macOS: chuột phải → Open, chọn cho
+phép chạy nếu bị chặn lần đầu). Tool cũng tự tạo môi trường ảo riêng như trên.
+
+Hoặc chạy tay qua terminal:
 ```bash
 cd fb_ai_manager
-pip install -r requirements.txt
-python3 run.py
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+venv/bin/python run.py
 ```
 
 ## Các bước dùng thử

@@ -171,9 +171,12 @@ Gemini/ChatGPT vì các nơi đó không lưu transcript ra máy theo cách này
 OKA, giúp bạn dùng AI (Groq / Gemini / Claude) viết nội dung rồi đăng thẳng
 lên Facebook Page của bạn.
 
-**Chạy:**
+**Chạy (không cần mở terminal/VSCode):**
 - Windows: bấm đúp `MO_FB_AI.bat` ở thư mục gốc.
-- macOS/Linux: `pip install -r fb_ai_manager/requirements.txt && python fb_ai_manager/run.py`
+- macOS/Linux: bấm đúp `MO_FB_AI.sh` ở thư mục gốc.
+
+Cả hai đều tự tạo môi trường ảo riêng (`fb_ai_manager/venv/`) ở lần chạy đầu
+tiên, cài thư viện vào đó — không đụng tới Python hệ thống của bạn.
 
 Sau đó trình duyệt tự mở `http://127.0.0.1:5050`.
 

@@ -25,3 +25,4 @@ OKA_KY_UC_*.md
 
 # fb_ai_manager - chứa API key AI và Facebook Page Access Token, TUYỆT ĐỐI không commit
 fb_ai_manager/data/
+fb_ai_manager/venv/
