@@ -165,6 +165,36 @@ MCP hiện có), sửa đường dẫn `args` thành đường dẫn tuyệt đ�
 `.jsonl` lưu tại `~/.claude/projects/`) — không đọc được lịch sử chat của
 Gemini/ChatGPT vì các nơi đó không lưu transcript ra máy theo cách này.
 
+## 📘 FB AI Manager — công cụ phụ, dùng AI viết & đăng bài Facebook
+
+Ở thư mục `fb_ai_manager/` có một web app local nhỏ (Flask), tách biệt với lõi
+OKA, giúp bạn dùng AI (Groq / Gemini / Claude) viết nội dung rồi đăng thẳng
+lên Facebook Page của bạn.
+
+**Chạy:**
+- Windows: bấm đúp `MO_FB_AI.bat` ở thư mục gốc.
+- macOS/Linux: `pip install -r fb_ai_manager/requirements.txt && python fb_ai_manager/run.py`
+
+Sau đó trình duyệt tự mở `http://127.0.0.1:5050`.
+
+**Chức năng:**
+- Nhập API key của Groq/Gemini/Claude trong mục Cài đặt.
+- Thêm nhiều trang Facebook (Page ID + Page Access Token).
+- Sinh nội dung bài viết bằng AI, xem trước, chỉnh sửa rồi đăng ngay hoặc lên
+  lịch đăng vào thời điểm chọn trước (tool tự kiểm tra mỗi 30 giây và đăng
+  khi tới giờ, miễn là tool vẫn đang chạy).
+- Lưu lịch sử toàn bộ bài đã đăng/lên lịch/thất bại.
+
+**Về Facebook Page Access Token:** khác với API key AI, token này lấy qua
+Facebook Graph API (không phải OKA cấp được) — trang Cài đặt trong tool có
+hướng dẫn từng bước lấy token qua `developers.facebook.com` + Graph API
+Explorer.
+
+**Bảo mật:** mọi API key và token chỉ lưu trong
+`fb_ai_manager/data/fb_ai_manager.db` trên máy bạn (đã thêm vào
+`.gitignore`), không có server trung gian nào khác nhìn thấy — tool chỉ gọi
+thẳng tới API của nhà cung cấp AI bạn chọn và tới Facebook khi bạn bấm đăng.
+
 ## Kiến trúc — tên module thật trong code (không phải bản thiết kế mơ)
 
 Mỗi hàng dưới đây là một **file thật** trong repo, không phải ý tưởng chưa

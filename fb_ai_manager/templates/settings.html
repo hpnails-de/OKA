@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Cài đặt{% endblock %}
+{% block content %}
+  <h1>Cài đặt</h1>
+
+  <section class="card">
+    <h2>API key AI</h2>
+    <p class="muted">Key được lưu local trong file database của tool, không gửi đi đâu ngoài chính nhà cung cấp AI khi bạn bấm "Sinh nội dung".</p>
+    <table class="post-table">
+      <thead><tr><th>Nhà cung cấp</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        {% for provider in providers %}
+          <tr>
+            <td>{{ provider }}</td>
+            <td>{% if ai_keys.get(provider) %}<span class="status status-posted">đã lưu (••••{{ ai_keys[provider][-4:] }})</span>{% else %}<span class="status status-failed">chưa có</span>{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form method="post" class="inline-form">
+      <input type="hidden" name="form_type" value="ai_key">
+      <select name="provider" required>
+        <option value="" disabled selected>Chọn nhà cung cấp</option>
+        {% for provider in providers %}
+          <option value="{{ provider }}">{{ provider }}</option>
+        {% endfor %}
+      </select>
+      <input type="password" name="api_key" placeholder="Dán API key vào đây" required>
+      <button type="submit">Lưu key</button>
+    </form>
+    <p class="hint">
+      Lấy key: Groq tại <code>console.groq.com/keys</code> ·
+      Gemini tại <code>aistudio.google.com/apikey</code> ·
+      Claude tại <code>console.anthropic.com/settings/keys</code>.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Trang Facebook</h2>
+    <p class="muted">
+      Cần <strong>Page Access Token</strong> (không phải access token cá nhân) với quyền
+      <code>pages_manage_posts</code> và <code>pages_read_engagement</code>. Cách lấy nhanh:
+    </p>
+    <ol class="hint-list">
+      <li>Vào <code>developers.facebook.com</code> → tạo App loại "Business".</li>
+      <li>Thêm sản phẩm "Facebook Login" và "Pages API".</li>
+      <li>Dùng <code>Graph API Explorer</code> (developers.facebook.com/tools/explorer):
+        chọn App của bạn → chọn quyền <code>pages_show_list</code>, <code>pages_manage_posts</code>,
+        <code>pages_read_engagement</code> → Generate Access Token → đăng nhập Facebook.</li>
+      <li>Gọi <code>GET /me/accounts</code> trong Explorer để lấy danh sách Page + Page Access Token
+        tương ứng (token này không hết hạn nếu App ở chế độ Live và bạn là admin trang).</li>
+      <li>Dán Page ID và Page Access Token vào form bên dưới.</li>
+    </ol>
+
+    {% if pages %}
+      <table class="post-table">
+        <thead><tr><th>Tên gợi nhớ</th><th>Page ID</th><th></th></tr></thead>
+        <tbody>
+          {% for p in pages %}
+            <tr>
+              <td>{{ p.label }}</td>
+              <td>{{ p.page_id }}</td>
+              <td>
+                <form method="post" onsubmit="return confirm('Xóa trang {{ p.label }}?');">
+                  <input type="hidden" name="form_type" value="delete_page">
+                  <input type="hidden" name="page_row_id" value="{{ p.id }}">
+                  <button type="submit" class="btn-danger">Xóa</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <form method="post" class="inline-form">
+      <input type="hidden" name="form_type" value="add_page">
+      <input type="text" name="label" placeholder="Tên gợi nhớ (vd: Trang salon)" required>
+      <input type="text" name="page_id" placeholder="Facebook Page ID" required>
+      <input type="password" name="access_token" placeholder="Page Access Token" required>
+      <button type="submit">Thêm trang</button>
+    </form>
+  </section>
+{% endblock %}

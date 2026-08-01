@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Lịch sử{% endblock %}
+{% block content %}
+  <h1>Lịch sử bài viết</h1>
+
+  {% if posts %}
+    <table class="post-table">
+      <thead>
+        <tr><th>Trang</th><th>Nội dung</th><th>AI</th><th>Trạng thái</th><th>Thời gian</th><th>Ghi chú</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for post in posts %}
+          <tr>
+            <td>{{ post.page_label }}</td>
+            <td class="content-cell">{{ post.content[:150] }}{% if post.content|length > 150 %}…{% endif %}</td>
+            <td>{{ post.ai_provider or "-" }}</td>
+            <td><span class="status status-{{ post.status }}">{{ post.status }}</span></td>
+            <td>{{ post.posted_at or post.scheduled_at or post.created_at }}</td>
+            <td>{% if post.error %}<span class="error-text">{{ post.error }}</span>{% endif %}</td>
+            <td>
+              {% if post.status == "scheduled" %}
+                <form method="post" action="{{ url_for('cancel_scheduled', post_id=post.id) }}"
+                      onsubmit="return confirm('Hủy bài đã lên lịch này?');">
+                  <button type="submit" class="btn-danger">Hủy</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">Chưa có bài viết nào.</p>
+  {% endif %}
+{% endblock %}

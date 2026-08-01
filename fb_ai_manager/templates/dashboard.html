@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Tổng quan{% endblock %}
+{% block content %}
+  <h1>Tổng quan</h1>
+
+  <section class="card">
+    <h2>Trang Facebook đã kết nối ({{ pages|length }})</h2>
+    {% if pages %}
+      <ul class="page-list">
+        {% for p in pages %}
+          <li><strong>{{ p.label }}</strong> <span class="muted">(Page ID: {{ p.page_id }})</span></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Chưa có trang nào. Vào <a href="{{ url_for('settings') }}">Cài đặt</a> để thêm.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Bài viết gần đây</h2>
+    {% if recent_posts %}
+      <table class="post-table">
+        <thead>
+          <tr><th>Trang</th><th>Nội dung</th><th>Trạng thái</th><th>Thời gian</th></tr>
+        </thead>
+        <tbody>
+          {% for post in recent_posts %}
+            <tr>
+              <td>{{ post.page_label }}</td>
+              <td class="content-cell">{{ post.content[:120] }}{% if post.content|length > 120 %}…{% endif %}</td>
+              <td><span class="status status-{{ post.status }}">{{ post.status }}</span></td>
+              <td>{{ post.posted_at or post.scheduled_at or post.created_at }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">Chưa có bài viết nào. Bắt đầu ở <a href="{{ url_for('generate') }}">Tạo &amp; đăng bài</a>.</p>
+    {% endif %}
+  </section>
+{% endblock %}

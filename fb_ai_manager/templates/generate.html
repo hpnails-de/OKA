@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Tạo &amp; đăng bài{% endblock %}
+{% block content %}
+  <h1>Tạo &amp; đăng bài</h1>
+
+  {% if not pages %}
+    <p class="muted">Bạn cần thêm ít nhất một trang Facebook ở <a href="{{ url_for('settings') }}">Cài đặt</a> trước.</p>
+  {% endif %}
+
+  <section class="card">
+    <h2>1. Sinh nội dung bằng AI</h2>
+    <form method="post">
+      <input type="hidden" name="action" value="generate">
+      <label>Nhà cung cấp AI</label>
+      <select name="provider">
+        {% for provider in providers %}
+          <option value="{{ provider }}" {% if provider == form_values.provider %}selected{% endif %}
+            {% if not ai_keys.get(provider) %}disabled{% endif %}>
+            {{ provider }}{% if not ai_keys.get(provider) %} (chưa có key){% endif %}
+          </option>
+        {% endfor %}
+      </select>
+      <label>Chủ đề / yêu cầu nội dung</label>
+      <textarea name="prompt" rows="3" placeholder="VD: Viết bài giới thiệu ưu đãi làm nail tháng 8, giọng thân thiện, kèm 2 emoji">{{ form_values.prompt }}</textarea>
+      <button type="submit">✨ Sinh nội dung</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>2. Xem trước, chỉnh sửa &amp; đăng</h2>
+    <form method="post">
+      <input type="hidden" name="provider" value="{{ form_values.provider }}">
+      <input type="hidden" name="prompt" value="{{ form_values.prompt }}">
+      <label>Nội dung bài viết</label>
+      <textarea name="edited_content" rows="8" placeholder="Nội dung sinh ra sẽ hiện ở đây, bạn có thể sửa trước khi đăng">{{ generated_content or "" }}</textarea>
+
+      <label>Đăng lên trang</label>
+      <select name="page_row_id">
+        <option value="" disabled {% if not form_values.page_row_id %}selected{% endif %}>Chọn trang</option>
+        {% for p in pages %}
+          <option value="{{ p.id }}" {% if form_values.page_row_id == p.id|string %}selected{% endif %}>{{ p.label }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="button-row">
+        <button type="submit" name="action" value="post_now" class="btn-primary">🚀 Đăng ngay</button>
+      </div>
+
+      <div class="schedule-row">
+        <label>Hoặc lên lịch đăng lúc</label>
+        <input type="datetime-local" name="scheduled_at" value="{{ form_values.scheduled_at }}">
+        <button type="submit" name="action" value="schedule">📅 Lên lịch</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}
