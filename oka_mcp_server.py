@@ -32,6 +32,8 @@ from can_tang_goc import can_tang_trung_uong
 from soi_chat_luong import soi_chat_luong_trung_uong
 from am_duong_can_bang import can_bang_am_duong_trung_uong
 import xoan_oc_ky_uc
+from oka_phien import khoan_chuyen_phien as _khoan_chuyen_phien
+from oka_query import hoi as _oka_query_hoi
 
 mcp = MCPServer("oka")
 
@@ -71,6 +73,41 @@ def oka_context(project_path: str, keyword: str = "") -> str:
     chan_kinh = tam_tang_trung_uong.xuat_chan_kinh_cho_ai(benh_nhan, loc=keyword or None)
     so_lieu = tam_tang_trung_uong.do_cong_luc(benh_nhan, chan_kinh, loc=keyword or None)
     return f"{chan_kinh}\n\n{so_lieu}" if so_lieu else chan_kinh
+
+
+@mcp.tool()
+def oka_task_context(project_path: str, task: str) -> str:
+    """Context GỌN cho MỘT nhiệm vụ cụ thể: tự chấm điểm file theo từ khóa
+    của task, trả về CHỈ các file liên quan (chữ ký hàm + đoạn code thật
+    quanh chỗ khớp + các nơi gọi hàm được nhắc tới) kèm thống kê token.
+    Dùng khi đã biết mình sắp sửa gì — gọn hơn oka_context nhiều lần.
+    task: mô tả nhiệm vụ, nên chứa tên hàm/class/file liên quan (không dấu)."""
+    benh_nhan = _chuan_hoa_benh_nhan(project_path)
+    # hoi() có thể tự nhai dự án lần đầu và in log ra stdout - bọc lại
+    # để không làm nhiễu giao thức JSON-RPC.
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        van_ban, thong_ke = _oka_query_hoi(task, benh_nhan)
+    if not van_ban:
+        return f"⚠️ {thong_ke.get('loi', 'Không tạo được context.')}"
+    dau = (f"### 📊 {thong_ke['token_context']:,} token / "
+           f"{thong_ke['token_source']:,} token source "
+           f"(giảm {thong_ke['giam']:.1f}%) · file: "
+           f"{', '.join(thong_ke['file_chon'])}\n\n")
+    return dau + van_ban
+
+
+@mcp.tool()
+def oka_session_check(project_path: str) -> str:
+    """Đo phiên Claude Code hiện tại của dự án còn bao nhiêu % cửa sổ
+    ngữ cảnh. Vượt ngưỡng thì tự xuất bộ hành lý chuyển phiên (Chân Kinh
+    + ký ức xoắn ốc + bản giao 3 lượt cuối) và trả về hướng dẫn chuyển
+    sang chat mới. Gọi tool này định kỳ khi làm việc dài — đừng đợi hết
+    cửa sổ mới gọi."""
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        can_chuyen, bao_cao = _khoan_chuyen_phien(project_path)
+    return bao_cao
 
 
 @mcp.tool()
