@@ -29,7 +29,7 @@ class VongChan:
             'services', 'models', 'src',
             # thêm cho JS/TS/React:
             'components', 'pages', 'hooks', 'store', 'routes', 'api',
-            'controllers', 'views', 'app',
+            'controllers', 'views', 'app', 'data',
         }
 
     def _dem_dong(self, duong_dan):
